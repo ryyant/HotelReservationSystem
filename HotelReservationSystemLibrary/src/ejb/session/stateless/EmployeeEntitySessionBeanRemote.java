@@ -23,6 +23,6 @@ public interface EmployeeEntitySessionBeanRemote {
     
     public List<Employee> viewAllEmployees() throws EmployeeNotFoundException;
 
-    public long createNewEmployee(String username, String password, String userRole) throws DuplicateException, InvalidInputException;
+    public long createNewEmployee(Employee employee) throws DuplicateException, InvalidInputException;
 
 }

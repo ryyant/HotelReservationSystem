@@ -44,26 +44,26 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
     
 
     @Override
-    public long createNewEmployee(String username, String password, String userRole) throws DuplicateException, InvalidInputException {
+    public long createNewEmployee(Employee employee) throws DuplicateException, InvalidInputException {
         try {
             
             // Check if role input fits the 4 different possibilities
-            UserRoleEnum userRoleEnum;
+            UserRoleEnum userRole = employee.getUserRole();
             if (userRole.equals("System Admin")) {
-                userRoleEnum = UserRoleEnum.SYSTEM_ADMIN;
+                userRole = UserRoleEnum.SYSTEM_ADMIN;
             } else if (userRole.equals("Operation Manager")) {
-                userRoleEnum = UserRoleEnum.OPERATION_MANAGER;
+                userRole = UserRoleEnum.OPERATION_MANAGER;
             } else if (userRole.equals("Sales Manager")) {
-                userRoleEnum = UserRoleEnum.SALES_MANAGER;
+                userRole = UserRoleEnum.SALES_MANAGER;
             } else if (userRole.equals("Relation Officer")) {
-                userRoleEnum = UserRoleEnum.RELATION_OFFICER;
+                userRole = UserRoleEnum.RELATION_OFFICER;
             } else {
                 throw new InvalidInputException();
             }
             
             // Check if employee already exists
             List<Employee> employees = em.createQuery("SELECT e from Employee e WHERE e.username = ?1")
-                    .setParameter(1, username)
+                    .setParameter(1, employee.getUsername())
                     .getResultList();
             
             if (employees.size() == 1) {
@@ -71,7 +71,6 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
             }
           
             // create employee instance and persist to db
-            Employee employee = new Employee(username, password, userRoleEnum);
             em.persist(employee);
             em.flush();
             return employee.getEmployeeId();

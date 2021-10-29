@@ -50,6 +50,7 @@ public class Room implements Serializable {
     }
 
     public Room(Integer roomNumber, RoomStatusEnum roomStatus, Boolean enabled) {
+        this();
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
         this.enabled = enabled;
