@@ -6,8 +6,6 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -39,14 +37,13 @@ public class Room implements Serializable {
     @OneToOne(fetch = FetchType.LAZY, mappedBy="Room")
     private Reservation reservation;
     
-    @ManyToMany
-    private List<RoomType> roomTypes;
+    @ManyToMany(mappedBy="Room")
+    private RoomType roomType;
     
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy="Room")
     private RoomRate roomRate;
     
     public Room() {
-        this.roomTypes = new ArrayList<>();
     }
 
     public Room(Integer roomNumber, RoomStatusEnum roomStatus, Boolean enabled) {
