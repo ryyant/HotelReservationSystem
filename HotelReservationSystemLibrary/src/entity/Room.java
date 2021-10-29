@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,14 +23,6 @@ import util.enumeration.RoomStatusEnum;
  */
 @Entity
 public class Room implements Serializable {
-
-    public RoomRate getRoomRate() {
-        return roomRate;
-    }
-
-    public void setRoomRate(RoomRate roomRate) {
-        this.roomRate = roomRate;
-    }
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -61,7 +54,6 @@ public class Room implements Serializable {
         this.enabled = enabled;
     }
 
-    
     public Long getRoomId() {
         return roomId;
     }
@@ -125,6 +117,22 @@ public class Room implements Serializable {
 
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
+    }
+
+    public RoomRate getRoomRate() {
+        return roomRate;
+    }
+
+    public void setRoomRate(RoomRate roomRate) {
+        this.roomRate = roomRate;
+    }
+    
+    public List<RoomType> getRoomTypes() {
+        return roomTypes;
+    }
+
+    public void setRoomTypes(List<RoomType> roomTypes) {
+        this.roomTypes = roomTypes;
     }
     
 }
