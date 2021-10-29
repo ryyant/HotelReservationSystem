@@ -23,6 +23,14 @@ import util.enumeration.RoomStatusEnum;
 @Entity
 public class Room implements Serializable {
 
+    public RoomRate getRoomRate() {
+        return roomRate;
+    }
+
+    public void setRoomRate(RoomRate roomRate) {
+        this.roomRate = roomRate;
+    }
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +45,8 @@ public class Room implements Serializable {
     @OneToOne(fetch = FetchType.LAZY, mappedBy="Room")
     private Reservation reservation;
     
-    @ManyToMany(mappedBy="Room")
-    private RoomType roomType;
+    @ManyToMany
+    private List<RoomType> roomTypes;
     
     @OneToOne(fetch = FetchType.LAZY, mappedBy="Room")
     private RoomRate roomRate;
@@ -109,6 +117,14 @@ public class Room implements Serializable {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
     }
     
 }
