@@ -6,10 +6,12 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import util.enumeration.UserRoleEnum;
 
 /**
  *
@@ -22,8 +24,23 @@ public class Employee implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
+    @Column(nullable = false)
     private String username;
+    @Column(nullable = false)    
+    private String password;
+    @Column(nullable = false)
+    private UserRoleEnum userRole;
 
+    public Employee() {
+    }
+
+    public Employee(String username, String password, UserRoleEnum userRole) {
+        this.username = username;
+        this.password = password;
+        this.userRole = userRole;
+    }
+
+    
     public Long getEmployeeId() {
         return employeeId;
     }
@@ -63,6 +80,22 @@ public class Employee implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public UserRoleEnum getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRoleEnum userRole) {
+        this.userRole = userRole;
     }
     
 }
