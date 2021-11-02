@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import static javax.persistence.EnumType.STRING;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,22 +30,23 @@ public class Room implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
-    @Column(nullable = false, length = 4)
+    @Column(nullable = false, length = 4, unique = true)
     private Integer roomNumber;
     @Column(nullable = false)
+    @Enumerated(STRING)
     private RoomStatusEnum roomStatus;
     @Column(nullable = false)
     private Boolean enabled;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy="Room")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "room")
     private Reservation reservation;
-    
+
     @ManyToMany
     private List<RoomType> roomTypes;
-    
-    @OneToOne(fetch = FetchType.LAZY, mappedBy="Room")
+
+    @OneToOne(fetch = FetchType.LAZY)
     private RoomRate roomRate;
-    
+
     public Room() {
     }
 
@@ -126,7 +129,7 @@ public class Room implements Serializable {
     public void setRoomRate(RoomRate roomRate) {
         this.roomRate = roomRate;
     }
-    
+
     public List<RoomType> getRoomTypes() {
         return roomTypes;
     }
@@ -134,5 +137,5 @@ public class Room implements Serializable {
     public void setRoomTypes(List<RoomType> roomTypes) {
         this.roomTypes = roomTypes;
     }
-    
+
 }

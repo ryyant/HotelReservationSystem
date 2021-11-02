@@ -41,8 +41,6 @@ public class Reservation implements Serializable {
     @OneToOne(fetch = FetchType.LAZY)
     private Room room;
     
-    
-    
     public Reservation() {
     }
     
@@ -91,6 +89,30 @@ public class Reservation implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public Occupant getOccupant() {
+        return occupant;
+    }
+
+    public void setOccupant(Occupant occupant) {
+        this.occupant = occupant;
+    }
+
+    public Partner getPartner() {
+        return partner;
+    }
+
+    public void setPartner(Partner partner) {
+        this.partner = partner;
     }
     
 }

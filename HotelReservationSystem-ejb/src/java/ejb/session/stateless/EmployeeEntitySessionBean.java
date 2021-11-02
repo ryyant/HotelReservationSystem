@@ -10,10 +10,8 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import util.enumeration.UserRoleEnum;
 import util.exception.DuplicateException;
 import util.exception.EmployeeNotFoundException;
-import util.exception.InvalidInputException;
 
 /**
  *
@@ -26,78 +24,46 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
     private EntityManager em;
 
     @Override
-    public long employeeLogin(String username, String password) throws EmployeeNotFoundException {
+    public Employee employeeLogin(String username, String password) throws EmployeeNotFoundException {
         try {
-            
+
             // Check if username and password correct
             Employee employee = (Employee) em.createQuery("SELECT e from Employee e WHERE e.username = ?1 AND e.password = ?2")
                     .setParameter(1, username)
                     .setParameter(2, password)
                     .getSingleResult();
-            
-            return employee.getEmployeeId();
-            
+
+            return employee;
+
         } catch (Exception e) {
-            throw new EmployeeNotFoundException("Wrong username / password!");
+            throw new EmployeeNotFoundException("Wrong username / password!\n");
         }
     }
-    
 
     @Override
-    public long createNewEmployee(Employee employee) throws DuplicateException, InvalidInputException {
+    public long createNewEmployee(Employee newEmployee) throws DuplicateException {
+
         try {
-            
-            // Check if role input fits the 4 different possibilities
-            UserRoleEnum userRole = employee.getUserRole();
-            if (userRole.equals("System Admin")) {
-                userRole = UserRoleEnum.SYSTEM_ADMIN;
-            } else if (userRole.equals("Operation Manager")) {
-                userRole = UserRoleEnum.OPERATION_MANAGER;
-            } else if (userRole.equals("Sales Manager")) {
-                userRole = UserRoleEnum.SALES_MANAGER;
-            } else if (userRole.equals("Relation Officer")) {
-                userRole = UserRoleEnum.RELATION_OFFICER;
-            } else {
-                throw new InvalidInputException();
-            }
-            
-            // Check if employee already exists
-            List<Employee> employees = em.createQuery("SELECT e from Employee e WHERE e.username = ?1")
-                    .setParameter(1, employee.getUsername())
-                    .getResultList();
-            
-            if (employees.size() == 1) {
-                throw new DuplicateException();
-            }
-          
-            // create employee instance and persist to db
-            em.persist(employee);
+            em.persist(newEmployee);
             em.flush();
-            return employee.getEmployeeId();
-            
-        } catch (InvalidInputException e) {
-            throw new InvalidInputException("Invalid Role Input!");
-        } catch (DuplicateException e) {
-            throw new DuplicateException("Username taken!");
+            return newEmployee.getEmployeeId();
+        } catch (Exception e) {
+            throw new DuplicateException("Username taken!\n");
         }
+
     }
-    
+
     @Override
     public List<Employee> viewAllEmployees() throws EmployeeNotFoundException {
-        try {
-            List<Employee> employees = em.createQuery("SELECT e from Employee e")
-                    .getResultList();
-            
-            // Check if employee list is empty
-            if (employees.size() == 0) {
-                throw new EmployeeNotFoundException();
-            }
-            
-            return employees;
-            
-        } catch (EmployeeNotFoundException e) {
-            throw new EmployeeNotFoundException("No employees currently!");
+        List<Employee> employees = em.createQuery("SELECT e from Employee e")
+                .getResultList();
+
+        // Check if employee list is empty
+        if (employees.isEmpty()) {
+            throw new EmployeeNotFoundException("No employees currently!\n");
         }
+
+        return employees;
     }
-    
+
 }

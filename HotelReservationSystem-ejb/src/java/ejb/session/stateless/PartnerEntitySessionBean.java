@@ -43,7 +43,7 @@ public class PartnerEntitySessionBean implements PartnerEntitySessionBeanRemote,
             return partner.getPartnerId();
             
         } catch (DuplicateException e) {
-            throw new DuplicateException("Username taken!");
+            throw new DuplicateException("Username taken!\n");
         }
     }
     
@@ -54,14 +54,14 @@ public class PartnerEntitySessionBean implements PartnerEntitySessionBeanRemote,
                     .getResultList();
             
             // Check if employee list is empty
-            if (partners.size() == 0) {
+            if (partners.isEmpty()) {
                 throw new PartnerNotFoundException();
             }
             
             return partners;
             
         } catch (PartnerNotFoundException e) {
-            throw new PartnerNotFoundException("No partners currently!");
+            throw new PartnerNotFoundException("No partners currently!\n");
         }
     }
     

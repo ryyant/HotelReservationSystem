@@ -5,15 +5,13 @@
  */
 package ejb.session.stateless;
 
-import entity.Partner;
-import entity.Room;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import util.exception.DuplicateException;
-import util.exception.PartnerNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
 /**
@@ -26,68 +24,47 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
-  @Override
+    @Override
     public long createNewRoomType(RoomType roomType) throws DuplicateException {
         try {
-            
-            // Check if partner already exists
-            List<RoomType> roomTypes = em.createQuery("SELECT r from RoomType r WHERE r.name = ?1")
-                    .setParameter(1, roomType.getName())
-                    .getResultList();
-            
-            if (roomTypes.size() == 1) {
-                throw new DuplicateException("Room Type Created!");
-            }
-          
-            // create room type instance and persist to db
-            
             em.persist(roomType);
             em.flush();
             return roomType.getRoomTypeId();
-            
-        } catch (DuplicateException e) {
-            throw e;
-        
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new DuplicateException("Room type already created!\n");
         }
     }
 
     @Override
+    public RoomType viewRoomTypeDetails(String roomTypeInput) throws RoomTypeNotFoundException {
+        try {
+            RoomType roomType = (RoomType) em.createQuery("SELECT r FROM RoomType r WHERE r.name = ?1")
+                    .setParameter(1, roomTypeInput)
+                    .getSingleResult();
+
+            return roomType;
+
+        } catch (NoResultException e) {
+            throw new RoomTypeNotFoundException("No Such Room Type!\n");
+        }
+
+    }
+
+    @Override
     public List<RoomType> viewAllRoomTypes() throws RoomTypeNotFoundException {
-        try {
-            
-            List<RoomType> roomTypes = em.createQuery("SELECT r from RoomType r")
-                    .getResultList();
-            
-            // Check if room type list is empty
-            if (roomTypes.size() == 0) {
-                throw new RoomTypeNotFoundException("No Room Types currently!");
-            }
-            
-            return roomTypes;
-            
-        } catch (RoomTypeNotFoundException e) {
-            throw e;
+
+        List<RoomType> roomTypes = em.createQuery("SELECT r from RoomType r")
+                .getResultList();
+
+        // Check if room type list is empty
+        if (roomTypes.isEmpty()) {
+            throw new RoomTypeNotFoundException("No room types currently!\n");
         }
+
+        return roomTypes;
+
     }
-    
-    @Override 
-    public RoomType viewRoomTypeDetails(Long roomTypeId) throws RoomTypeNotFoundException {
-        try {
-            RoomType roomType = em.find(RoomType.class, roomTypeId);
-            if(roomType == null) {
-                throw new RoomTypeNotFoundException("No Such Room Type!");
-            } else {
-                return roomType;
-            }
-            
-        } catch (RoomTypeNotFoundException e) {
-            throw e;
-        }
-        
-    }
-    
-    
-    
-    
-    
+
 }

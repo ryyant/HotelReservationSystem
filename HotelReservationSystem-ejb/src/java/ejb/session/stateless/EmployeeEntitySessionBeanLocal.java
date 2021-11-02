@@ -19,10 +19,10 @@ import util.exception.InvalidInputException;
 @Local
 public interface EmployeeEntitySessionBeanLocal {
     
-    public long employeeLogin(String username, String password) throws EmployeeNotFoundException;
+    public Employee employeeLogin(String username, String password) throws EmployeeNotFoundException;
     
     public List<Employee> viewAllEmployees() throws EmployeeNotFoundException;
 
-    public long createNewEmployee(Employee employee) throws DuplicateException, InvalidInputException;
+    public long createNewEmployee(Employee employee) throws DuplicateException;
 
 }

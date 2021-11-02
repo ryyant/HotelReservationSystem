@@ -19,9 +19,9 @@ public class Guest extends Occupant implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false, length = 264)
+    @Column(nullable = false, length = 32, unique = true)
     private String username;
-    @Column(nullable = false, length = 264)
+    @Column(nullable = false, length = 32)
     private String password;
 
     public Guest() {

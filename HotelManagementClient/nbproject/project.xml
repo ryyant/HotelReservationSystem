@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.j2ee.clientproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/car-project/1">
-            <name>HotelReservationSystemClient</name>
+            <name>HotelManagementClient</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <source-roots>
                 <root id="src.dir" name="Source Packages"/>
@@ -11,8 +11,8 @@
             <test-roots>
                 <root id="test.src.dir" name="Test Packages"/>
             </test-roots>
-            <included-library dirs="200">libs.jakartaee-api-8.0.classpath</included-library>
             <included-library dirs="200">reference.HotelReservationSystemLibrary.jar</included-library>
+            <included-library dirs="200">libs.jakartaee-api-8.0.classpath</included-library>
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>

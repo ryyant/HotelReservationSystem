@@ -26,7 +26,7 @@ public class Partner implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partnerId;
-    @Column(nullable = false, length = 264)
+    @Column(nullable = false, length = 264, unique = true)
     private String username;
     @Column(nullable = false, length = 264)
     private String password;
@@ -94,6 +94,14 @@ public class Partner implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
     
 }

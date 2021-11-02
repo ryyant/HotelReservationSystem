@@ -8,6 +8,8 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import static javax.persistence.EnumType.STRING;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,11 +26,12 @@ public class Employee implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32, unique = true)
     private String username;
-    @Column(nullable = false)    
+    @Column(nullable = false, length = 32)
     private String password;
     @Column(nullable = false)
+    @Enumerated(STRING)
     private UserRoleEnum userRole;
 
     public Employee() {
@@ -40,7 +43,6 @@ public class Employee implements Serializable {
         this.userRole = userRole;
     }
 
-    
     public Long getEmployeeId() {
         return employeeId;
     }
@@ -97,5 +99,5 @@ public class Employee implements Serializable {
     public void setUserRole(UserRoleEnum userRole) {
         this.userRole = userRole;
     }
-    
+
 }

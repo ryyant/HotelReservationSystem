@@ -24,28 +24,28 @@ public class RoomType implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomTypeId;
-    @Column(nullable = false, length = 264)
+    @Column(nullable = false, length = 32, unique = true)
     private String name;
     @Column(nullable = false)
     private String description;
-    @Column(nullable = false)
-    private String size;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2)
+    private String roomSize;
+    @Column(nullable = false, length = 2)
     private String bed;
     @Column(nullable = false)
     private Integer capacity;
     @Column(nullable = false)
-    private List amenities;
+    private List<String> amenities;
     @Column(nullable = false)
     private Boolean enabled;
 
     public RoomType() {
     }
 
-    public RoomType(String name, String description, String size, String bed, Integer capacity, List amenities, Boolean enabled) {
+    public RoomType(String name, String description, String roomSize, String bed, Integer capacity, List<String> amenities, Boolean enabled) {
         this.name = name;
         this.description = description;
-        this.size = size;
+        this.roomSize = roomSize;
         this.bed = bed;
         this.capacity = capacity;
         this.amenities = amenities;
@@ -102,12 +102,12 @@ public class RoomType implements Serializable {
         this.description = description;
     }
 
-    public String getSize() {
-        return size;
+    public String getRoomSize() {
+        return roomSize;
     }
 
-    public void setSize(String size) {
-        this.size = size;
+    public void setRomSize(String roomSize) {
+        this.roomSize = roomSize;
     }
 
     public String getBed() {
@@ -126,11 +126,11 @@ public class RoomType implements Serializable {
         this.capacity = capacity;
     }
 
-    public List getAmenities() {
+    public List<String> getAmenities() {
         return amenities;
     }
 
-    public void setAmenities(List amenities) {
+    public void setAmenities(List<String> amenities) {
         this.amenities = amenities;
     }
 

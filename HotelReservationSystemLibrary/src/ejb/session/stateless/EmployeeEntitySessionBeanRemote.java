@@ -10,7 +10,6 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.DuplicateException;
 import util.exception.EmployeeNotFoundException;
-import util.exception.InvalidInputException;
 
 /**
  *
@@ -19,10 +18,10 @@ import util.exception.InvalidInputException;
 @Remote
 public interface EmployeeEntitySessionBeanRemote {
         
-    public long employeeLogin(String username, String password) throws EmployeeNotFoundException;
+    public Employee employeeLogin(String username, String password) throws EmployeeNotFoundException;
     
     public List<Employee> viewAllEmployees() throws EmployeeNotFoundException;
 
-    public long createNewEmployee(Employee employee) throws DuplicateException, InvalidInputException;
+    public long createNewEmployee(Employee employee) throws DuplicateException;
 
 }

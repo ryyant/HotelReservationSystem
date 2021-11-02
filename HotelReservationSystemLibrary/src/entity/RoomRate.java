@@ -9,9 +9,13 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import static javax.persistence.EnumType.STRING;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import util.enumeration.RateTypeEnum;
 
 /**
@@ -25,17 +29,20 @@ public class RoomRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String name;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String roomType;
     @Column(nullable = false)
+    @Enumerated(STRING)
     private RateTypeEnum rateType;
     @Column(nullable = false)
     private Double ratePerNight;
     @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
     private Date validityStartDate;
     @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
     private Date validityEndDate;
 
     public RoomRate() {

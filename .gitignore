@@ -10,3 +10,9 @@
 /HotelReservationSystemLibrary/dist/
 /HotelReservationSystem-ejb/dist/
 /HotelReservationSystem-ejb/build/
+/HoRSManagementClient/nbproject/private/
+/HoRSManagementClient/build/
+/HoRSManagementClient/dist/
+/HotelManagementClient/nbproject/private/
+/HotelManagementClient/build/
+/HotelManagementClient/dist/

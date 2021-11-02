@@ -10,14 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 /**
  *
@@ -31,16 +29,16 @@ public class Occupant implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long occupantId;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String name;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String email;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)
     private String phoneNumber;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String passportNumber;
 
-    @OneToMany(mappedBy = "Occupant")
+    @OneToMany(mappedBy = "occupant")
     private List<Reservation> reservations;
     
     
@@ -120,6 +118,14 @@ public class Occupant implements Serializable {
 
     public void setPassportNumber(String passportNumber) {
         this.passportNumber = passportNumber;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
     
 }
