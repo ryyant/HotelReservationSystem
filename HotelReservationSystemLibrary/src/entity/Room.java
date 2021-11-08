@@ -6,7 +6,6 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import static javax.persistence.EnumType.STRING;
@@ -15,7 +14,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import util.enumeration.RoomStatusEnum;
 
@@ -41,8 +39,8 @@ public class Room implements Serializable {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "room")
     private Reservation reservation;
 
-    @ManyToMany
-    private List<RoomType> roomTypes;
+    @OneToOne(fetch = FetchType.LAZY)
+    private RoomType roomType;
 
     @OneToOne(fetch = FetchType.LAZY)
     private RoomRate roomRate;
@@ -130,12 +128,13 @@ public class Room implements Serializable {
         this.roomRate = roomRate;
     }
 
-    public List<RoomType> getRoomTypes() {
-        return roomTypes;
+    public RoomType getRoomType() {
+        return roomType;
     }
 
-    public void setRoomTypes(List<RoomType> roomTypes) {
-        this.roomTypes = roomTypes;
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
+
 
 }

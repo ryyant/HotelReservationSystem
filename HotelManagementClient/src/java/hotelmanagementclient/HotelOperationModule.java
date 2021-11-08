@@ -41,6 +41,7 @@ public class HotelOperationModule {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Hi, " + currentEmployeeEntity.getUsername() + "!\n");
 
+        OUTER:
         while (true) {
             System.out.println("*** Operation Manager View ***");
             System.out.println("-----------------------");
@@ -60,8 +61,7 @@ public class HotelOperationModule {
             System.out.println("11: Logout\n");
             int response = 0;
 
-            OUTER:
-            while (response < 1 || response > 11) {
+            while (response < 1 || response > 12) {
                 System.out.print("> ");
                 response = scanner.nextInt();
                 System.out.println();

@@ -67,4 +67,44 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
 
     }
 
+    @Override
+    public void updateRoomType() throws RoomTypeNotFoundException {
+
+        List<RoomType> roomTypes = em.createQuery("SELECT r from RoomType r")
+                .getResultList();
+
+        // Check if room type list is empty
+        if (roomTypes.isEmpty()) {
+            throw new RoomTypeNotFoundException("No room types currently!\n");
+        }
+
+    }
+
+    @Override
+    public void deleteRoomType(String roomTypeName) throws RoomTypeNotFoundException {
+
+        RoomType roomType; 
+        
+        // check if input valid roomTypeName
+        try {
+            roomType = (RoomType) em.createQuery("SELECT r from RoomType r WHERE r.roomTypeName = ?1")
+                    .setParameter(1, roomTypeName)
+                    .getSingleResult();
+            
+        } catch (NoResultException e) {
+            throw new RoomTypeNotFoundException("Room Type does not exist!\n");
+        }
+       
+        List<RoomType> roomTypes = em.createQuery("SELECT r from Room r WHERE r.roomType.roomTypeName = ?1")
+                .setParameter(1, roomTypeName)
+                .getResultList();
+
+        // Check if room type is used
+        if (roomTypes.size() > 0) {
+            // mark as disabled if used
+            roomType.setEnabled(false);
+        } else {            
+            em.remove(roomType);
+        }
+    }
 }
