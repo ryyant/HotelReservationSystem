@@ -75,11 +75,13 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
     }
 
     @Override
-    public void deleteRoomType(RoomType roomType) {
+    public void deleteRoomType(Long roomTypeId) {
 
         List<RoomType> roomTypes = em.createQuery("SELECT r from Room r WHERE r.roomType.roomTypeId = ?1")
-                .setParameter(1, roomType.getRoomTypeId())
+                .setParameter(1, roomTypeId)
                 .getResultList();
+        
+        RoomType roomType = em.find(RoomType.class, roomTypeId);
 
         // Check if room type is used
         if (roomTypes.size() > 0) {

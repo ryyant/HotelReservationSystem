@@ -41,27 +41,27 @@ public class RoomType implements Serializable {
     private List<String> amenities;
     @Column(nullable = false)
     private Boolean enabled;
-    
+
     @OneToMany
     private List<RoomRate> roomRates;
-    
+
     @OneToOne(fetch = FetchType.LAZY)
     private RoomType nextHigherRoomType;
 
     public RoomType() {
+        this.enabled = true;
     }
 
-    public RoomType(String name, String description, String roomSize, String bed, Integer capacity, List<String> amenities, Boolean enabled) {
+    public RoomType(String name, String description, String roomSize, String bed, Integer capacity, List<String> amenities) {
+        this();
         this.name = name;
         this.description = description;
         this.roomSize = roomSize;
         this.bed = bed;
         this.capacity = capacity;
         this.amenities = amenities;
-        this.enabled = enabled;
     }
 
-    
     public Long getRoomTypeId() {
         return roomTypeId;
     }
@@ -151,7 +151,6 @@ public class RoomType implements Serializable {
         this.enabled = enabled;
     }
 
-
     public RoomType getNextHigherRoomType() {
         return nextHigherRoomType;
     }
@@ -167,5 +166,5 @@ public class RoomType implements Serializable {
     public void setRoomRates(List<RoomRate> roomRates) {
         this.roomRates = roomRates;
     }
-    
+
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.DuplicateException;
 import util.exception.RoomNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -21,7 +22,7 @@ public interface RoomEntitySessionBeanRemote {
 
     public List<Room> viewAllRooms() throws RoomNotFoundException;
 
-    public long createNewRoom(int roomNumber, Long roomTypeId) throws DuplicateException;
+    public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
 
     public void deleteRoom(int roomNumber) throws RoomNotFoundException;
 
