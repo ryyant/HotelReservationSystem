@@ -39,10 +39,10 @@ public class RoomRate implements Serializable {
     @Column(nullable = false)
     private Boolean enabled;
     @Column(nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     private Date validityStartDate;
     @Column(nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     private Date validityEndDate;
 
     public RoomRate() {
@@ -56,7 +56,6 @@ public class RoomRate implements Serializable {
         this.ratePerNight = ratePerNight;
         this.validityStartDate = validityStartDate;
         this.validityEndDate = validityEndDate;
-        enabled = true;
     }
 
     public Long getRoomRateId() {

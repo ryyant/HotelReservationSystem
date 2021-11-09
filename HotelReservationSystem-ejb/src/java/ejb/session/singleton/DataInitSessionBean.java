@@ -60,13 +60,13 @@ public class DataInitSessionBean {
  
 
                 List<String> amenities = new ArrayList<>(Arrays.asList("toothbrush"));
-                RoomType roomType = new RoomType("Deluxe Room", "description", "3", "1", 5, amenities, true);
+                RoomType roomType = new RoomType("Deluxe Room", "description", "3", "1", 5, amenities);
                 roomType.getRoomRates().add(roomRate);
                 if (em.find(RoomType.class, 1l) == null) {
                     em.persist(roomType);
                    
                 }
-                Room room = new Room(0101, RoomStatusEnum.AVAILABLE, true);
+                Room room = new Room(0101);
                 room.setRoomType(roomType);
                 if (em.find(Room.class, 1l) == null) {
                     em.persist(room);

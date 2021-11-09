@@ -39,7 +39,7 @@ public class Occupant implements Serializable {
     @Column(nullable = false, length = 32)
     private String passportNumber;
 
-    @OneToMany(mappedBy = "occupant", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "occupant")
     private List<Reservation> reservations;
     
     
