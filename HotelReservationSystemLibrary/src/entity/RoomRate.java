@@ -54,6 +54,7 @@ public class RoomRate implements Serializable {
         this.ratePerNight = ratePerNight;
         this.validityStartDate = validityStartDate;
         this.validityEndDate = validityEndDate;
+        enabled = true;
     }
 
     public Long getRoomRateId() {

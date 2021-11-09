@@ -91,12 +91,15 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
 
         // get all available rooms
-        List<Room> rooms = em.createQuery("SELECT r from Room r WHERE r.roomStatus = AVAILABLE AND r.enabled = TRUE")
+        List<Room> rooms = em.createQuery("SELECT r FROM Room r WHERE r.roomStatus = ?1 AND r.enabled = TRUE")
+                .setParameter(1, RoomStatusEnum.AVAILABLE)
                 .getResultList();
 
         List<Room> availRooms = new ArrayList<>();
 
         for (Room r : rooms) {
+            r.getRoomType();
+            r.getReservation();
 
             Reservation res = r.getReservation();
 
@@ -107,7 +110,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
 
             // those with reservations: checkInDateInput >= reservation.checkOutDate
             // OR those with reservations: checkOutDateInput <= reservation.checkInDate
-            if (res.getCheckOutDate().compareTo(checkInDateInput) < 0 || res.getCheckInDate().compareTo(checkOutDateInput) > 0) {
+            else if (res.getCheckOutDate().compareTo(checkInDateInput) < 0 || res.getCheckInDate().compareTo(checkOutDateInput) > 0) {
                 availRooms.add(r);
             }
 

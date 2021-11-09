@@ -10,6 +10,7 @@ import entity.Guest;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.DuplicateException;
 import util.exception.GuestNotFoundException;
 
 /**
@@ -21,6 +22,18 @@ public class GuestEntitySessionBean implements GuestEntitySessionBeanRemote, Gue
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
+    
+    public Guest guestRegister(String usernameInput, String passwordInput, String nameInput, String emailInput, String phoneNumberInput, String passportNumberInput) throws DuplicateException {
+        Guest guest = new Guest(usernameInput, passwordInput, nameInput,  emailInput, phoneNumberInput, passportNumberInput);
+        
+       try {
+           em.persist(guest);
+           em.flush();
+           return guest;
+       } catch (Exception e) {
+           throw new DuplicateException("Guest exists!");
+       }
+    }
 
     @Override
     public Guest guestLogin(String username, String password) throws GuestNotFoundException {
@@ -38,5 +51,9 @@ public class GuestEntitySessionBean implements GuestEntitySessionBeanRemote, Gue
             throw new GuestNotFoundException("Wrong username / password!\n");
         }
     }
+    
+    
+    
+    
 
 }

@@ -43,6 +43,7 @@ public class Room implements Serializable {
     private RoomType roomType;
 
     public Room() {
+        
     }
 
     public Room(Integer roomNumber, RoomStatusEnum roomStatus, Boolean enabled) {

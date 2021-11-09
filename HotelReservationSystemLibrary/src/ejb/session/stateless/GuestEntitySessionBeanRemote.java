@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Guest;
 import javax.ejb.Remote;
+import util.exception.DuplicateException;
 import util.exception.GuestNotFoundException;
 
 /**
@@ -17,5 +18,6 @@ import util.exception.GuestNotFoundException;
 public interface GuestEntitySessionBeanRemote {
 
     public Guest guestLogin(String username, String password) throws GuestNotFoundException;
+    public Guest guestRegister(String usernameInput, String passwordInput, String nameInput, String emailInput, String phoneNumberInput, String passportNumberInput) throws DuplicateException;
 
 }

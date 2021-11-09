@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,9 +50,11 @@ public class RoomType implements Serializable {
     private RoomType nextHigherRoomType;
 
     public RoomType() {
+        this.roomRates = new ArrayList<>();
     }
 
     public RoomType(String name, String description, String roomSize, String bed, Integer capacity, List<String> amenities, Boolean enabled) {
+        this();
         this.name = name;
         this.description = description;
         this.roomSize = roomSize;
