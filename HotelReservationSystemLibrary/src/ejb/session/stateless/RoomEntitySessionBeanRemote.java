@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Room;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.DuplicateException;
@@ -25,5 +26,9 @@ public interface RoomEntitySessionBeanRemote {
     public void deleteRoom(int roomNumber) throws RoomNotFoundException;
 
     public void updateRoom(Room room) throws RoomNotFoundException;
+
+    public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
+
+    public void allocateRooms();
 
 }

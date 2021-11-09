@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Room;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.DuplicateException;
@@ -26,4 +27,8 @@ public interface RoomEntitySessionBeanLocal {
 
     public long createNewRoom(int roomNumber, Long roomTypeId) throws DuplicateException;
     
+    public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
+
+    public void allocateRooms();
+
 }

@@ -5,8 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.Reservation;
 import entity.Room;
 import entity.RoomType;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -29,10 +32,10 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     @Override
     public long createNewRoom(int roomNumber, Long roomTypeId) throws DuplicateException {
         try {
-            Room room = new Room(roomNumber, RoomStatusEnum.AVAILABLE, true);          
+            Room room = new Room(roomNumber, RoomStatusEnum.AVAILABLE, true);
             em.persist(room);
             em.flush();
-            
+
             RoomType roomType = em.find(RoomType.class, roomTypeId);
             room.setRoomType(roomType);
             return room.getRoomId();
@@ -82,5 +85,69 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
             throw new RoomNotFoundException("Room does not exist!");
         }
     }
+    
+
+    @Override
+    public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
+
+        // get all available rooms
+        List<Room> rooms = em.createQuery("SELECT r from Room r WHERE r.roomStatus = AVAILABLE AND r.enabled = TRUE")
+                .getResultList();
+
+        List<Room> availRooms = new ArrayList<>();
+
+        for (Room r : rooms) {
+
+            Reservation res = r.getReservation();
+
+            // get those with no reservations
+            if (res == null) {
+                availRooms.add(r);
+            }
+
+            // those with reservations: checkInDateInput >= reservation.checkOutDate
+            // OR those with reservations: checkOutDateInput <= reservation.checkInDate
+            if (res.getCheckOutDate().compareTo(checkInDateInput) < 0 || res.getCheckInDate().compareTo(checkOutDateInput) > 0) {
+                availRooms.add(r);
+            }
+
+        }
+        
+        if (availRooms.isEmpty()) {
+            throw new RoomNotFoundException("No rooms available for this time period at the moment!");
+        }
+
+        return availRooms;
+    }
+    
+    @Override
+    public void allocateRooms() {
+        Date now = new Date();
+        
+        // get all reservations checking in today
+        List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE checkInDate = ?1")
+                .setParameter(1, now)
+                .getResultList();
+
+        for (Reservation r : reservations) {
+            
+            Room room = r.getRoom();
+            
+            if (room.getRoomStatus().equals("AVAILABLE")) {
+                room.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
+            } else {
+                // automatically allocate upgrade logic here
+                
+                
+                //Report report = new Report(e);
+            }
+        }
+        
+        
+        
+        
+        
+    }
+    
 
 }
