@@ -17,8 +17,15 @@ import util.exception.RoomTypeNotFoundException;
  */
 @Remote
 public interface RoomTypeEntitySessionBeanRemote {
-        public long createNewRoomType(RoomType roomType) throws DuplicateException;
-        public List<RoomType> viewAllRoomTypes() throws RoomTypeNotFoundException;
-        public RoomType viewRoomTypeDetails(String roomTypeInput) throws RoomTypeNotFoundException;
+    
+    public long createNewRoomType(RoomType roomType, Long roomRateId) throws DuplicateException;
+    
+    public List<RoomType> viewAllRoomTypes() throws RoomTypeNotFoundException;
+    
+    public RoomType viewRoomTypeDetails(String roomTypeName) throws RoomTypeNotFoundException;
 
+    public void deleteRoomType(RoomType roomType);
+
+    public void updateRoomType(RoomType roomType);
+    
 }

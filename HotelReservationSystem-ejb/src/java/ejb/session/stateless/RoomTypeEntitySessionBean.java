@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -25,10 +26,12 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
     private EntityManager em;
 
     @Override
-    public long createNewRoomType(RoomType roomType) throws DuplicateException {
+    public long createNewRoomType(RoomType roomType, Long roomRateId) throws DuplicateException {
         try {
             em.persist(roomType);
             em.flush();
+            RoomRate roomRate = em.find(RoomRate.class, roomRateId);
+            roomType.setRoomRate(roomRate);
             return roomType.getRoomTypeId();
 
         } catch (Exception e) {
@@ -38,10 +41,10 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
     }
 
     @Override
-    public RoomType viewRoomTypeDetails(String roomTypeInput) throws RoomTypeNotFoundException {
+    public RoomType viewRoomTypeDetails(String roomTypeName) throws RoomTypeNotFoundException {
         try {
             RoomType roomType = (RoomType) em.createQuery("SELECT r FROM RoomType r WHERE r.name = ?1")
-                    .setParameter(1, roomTypeInput)
+                    .setParameter(1, roomTypeName)
                     .getSingleResult();
 
             return roomType;
@@ -68,42 +71,22 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
     }
 
     @Override
-    public void updateRoomType() throws RoomTypeNotFoundException {
-
-        List<RoomType> roomTypes = em.createQuery("SELECT r from RoomType r")
-                .getResultList();
-
-        // Check if room type list is empty
-        if (roomTypes.isEmpty()) {
-            throw new RoomTypeNotFoundException("No room types currently!\n");
-        }
-
+    public void updateRoomType(RoomType roomType) {
+        em.merge(roomType);
     }
 
     @Override
-    public void deleteRoomType(String roomTypeName) throws RoomTypeNotFoundException {
+    public void deleteRoomType(RoomType roomType) {
 
-        RoomType roomType; 
-        
-        // check if input valid roomTypeName
-        try {
-            roomType = (RoomType) em.createQuery("SELECT r from RoomType r WHERE r.roomTypeName = ?1")
-                    .setParameter(1, roomTypeName)
-                    .getSingleResult();
-            
-        } catch (NoResultException e) {
-            throw new RoomTypeNotFoundException("Room Type does not exist!\n");
-        }
-       
-        List<RoomType> roomTypes = em.createQuery("SELECT r from Room r WHERE r.roomType.roomTypeName = ?1")
-                .setParameter(1, roomTypeName)
+        List<RoomType> roomTypes = em.createQuery("SELECT r from Room r WHERE r.roomType.roomTypeId = ?1")
+                .setParameter(1, roomType.getRoomTypeId())
                 .getResultList();
 
         // Check if room type is used
         if (roomTypes.size() > 0) {
             // mark as disabled if used
             roomType.setEnabled(false);
-        } else {            
+        } else {
             em.remove(roomType);
         }
     }

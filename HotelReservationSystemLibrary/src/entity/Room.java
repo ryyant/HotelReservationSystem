@@ -42,9 +42,6 @@ public class Room implements Serializable {
     @OneToOne(fetch = FetchType.LAZY)
     private RoomType roomType;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private RoomRate roomRate;
-
     public Room() {
     }
 
@@ -118,14 +115,6 @@ public class Room implements Serializable {
 
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
-    }
-
-    public RoomRate getRoomRate() {
-        return roomRate;
-    }
-
-    public void setRoomRate(RoomRate roomRate) {
-        this.roomRate = roomRate;
     }
 
     public RoomType getRoomType() {

@@ -31,6 +31,7 @@ public class FrontOfficeModule {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Hi, " + currentEmployeeEntity.getUsername() + "!\n");
 
+        OUTER:
         while (true) {
             System.out.println("*** Guest Relation Officer View ***");
             System.out.println("-----------------------");
@@ -38,31 +39,29 @@ public class FrontOfficeModule {
             System.out.println("2: Walk-in Reserve Room");
             System.out.println("-----------------------");
             System.out.println("3: Check-in Guest");
-            System.out.println("3: Check-out Guest");
+            System.out.println("4: Check-out Guest");
             System.out.println("-----------------------");
-            System.out.println("7: Logout\n");
+            System.out.println("5: Logout\n");
             int response = 0;
 
-            while (response < 1 || response > 7) {
+            while (response < 1 || response > 4) {
                 System.out.print("> ");
-
                 response = scanner.nextInt();
-
-                if (response == 1) {
-                } else if (response == 2) {
-                } else if (response == 3) {
-                } else if (response == 4) {
-                } else if (response == 5) {
-                } else if (response == 6) {
-                } else if (response == 7) {
-                    break;
-                } else {
-                    System.out.println("Invalid option, please try again!\n");
+                switch (response) {
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    case 5:
+                        break OUTER;
+                    default:
+                        System.out.println("Invalid option, please try again!\n");
+                        break;
                 }
-            }
-
-            if (response == 7) {
-                break;
             }
         }
     }

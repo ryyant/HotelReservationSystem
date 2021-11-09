@@ -68,14 +68,14 @@ public class RoomRateEntitySessionBean implements RoomRateEntitySessionBeanRemot
     }
 
     @Override
-    public void updateRoomRate() throws RoomRateNotFoundException {
-
+    public void updateRoomRate(RoomRate roomRate) {
+        em.merge(roomRate);
     }
 
     @Override
-    public void deleteRoomRate(RoomRate roomRate) throws RoomRateNotFoundException {
+    public void deleteRoomRate(RoomRate roomRate) {
 
-        List<RoomRate> roomRates = em.createQuery("SELECT r from Room r WHERE r.roomRate.roomRateId = ?1")
+        List<RoomRate> roomRates = em.createQuery("SELECT r from RoomType r WHERE r.roomRate.roomRateId = ?1")
                 .setParameter(1, roomRate.getRoomRateId())
                 .getResultList();
 

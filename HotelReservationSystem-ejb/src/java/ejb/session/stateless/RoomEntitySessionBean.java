@@ -6,7 +6,6 @@
 package ejb.session.stateless;
 
 import entity.Room;
-import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -28,15 +27,14 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     private EntityManager em;
 
     @Override
-    public long createNewRoom(int roomNumber, Long roomTypeId, Long roomRateId) throws DuplicateException {
+    public long createNewRoom(int roomNumber, Long roomTypeId) throws DuplicateException {
         try {
-            Room room = new Room(roomNumber, RoomStatusEnum.AVAILABLE, true);
-            RoomType roomType = em.find(RoomType.class, roomTypeId);
-            room.setRoomType(roomType);
-            RoomRate roomRate = em.find(RoomRate.class, roomRateId);
-            room.setRoomRate(roomRate);
+            Room room = new Room(roomNumber, RoomStatusEnum.AVAILABLE, true);          
             em.persist(room);
             em.flush();
+            
+            RoomType roomType = em.find(RoomType.class, roomTypeId);
+            room.setRoomType(roomType);
             return room.getRoomId();
 
         } catch (Exception e) {
@@ -60,24 +58,8 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     }
 
     @Override
-    public void updateRoom(int roomNumber, int newRoomNumber, RoomStatusEnum newRoomStatus) throws RoomNotFoundException {
-
-        try {
-            Room room = (Room) em.createQuery("SELECT r from Room r WHERE r.roomNumber = ?1")
-                    .setParameter(1, roomNumber)
-                    .getSingleResult();
-
-            if (newRoomNumber > 0) {
-                room.setRoomNumber(newRoomNumber);
-            }
-            if (newRoomStatus != null) {
-                room.setRoomStatus(newRoomStatus);
-            }
-
-        } catch (NoResultException e) {
-            throw new RoomNotFoundException("Room does not exist!");
-        }
-
+    public void updateRoom(Room room) throws RoomNotFoundException {
+        em.merge(room);
     }
 
     @Override

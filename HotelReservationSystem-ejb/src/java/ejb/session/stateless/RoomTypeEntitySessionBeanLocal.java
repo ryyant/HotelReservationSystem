@@ -17,15 +17,15 @@ import util.exception.RoomTypeNotFoundException;
  */
 @Local
 public interface RoomTypeEntitySessionBeanLocal {
-
-    public long createNewRoomType(RoomType roomType) throws DuplicateException;
     
     public List<RoomType> viewAllRoomTypes() throws RoomTypeNotFoundException;
     
-    public RoomType viewRoomTypeDetails(String roomTypeInput) throws RoomTypeNotFoundException;
+    public RoomType viewRoomTypeDetails(String roomTypeName) throws RoomTypeNotFoundException;
 
-    public void deleteRoomType(String roomTypeName) throws RoomTypeNotFoundException;
+    public void deleteRoomType(RoomType roomType);
 
-    public void updateRoomType() throws RoomTypeNotFoundException;
+    public void updateRoomType(RoomType roomType);
+
+    public long createNewRoomType(RoomType roomType, Long roomRateId) throws DuplicateException;
     
 }

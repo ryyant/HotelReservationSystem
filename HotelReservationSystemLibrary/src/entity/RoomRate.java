@@ -31,8 +31,6 @@ public class RoomRate implements Serializable {
     private Long roomRateId;
     @Column(nullable = false, length = 32)
     private String name;
-    @Column(nullable = false, length = 32)
-    private String roomType;
     @Column(nullable = false)
     @Enumerated(STRING)
     private RateTypeEnum rateType;
@@ -41,18 +39,17 @@ public class RoomRate implements Serializable {
     @Column(nullable = false)
     private Boolean enabled;
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date validityStartDate;
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date validityEndDate;
 
     public RoomRate() {
     }
 
-    public RoomRate(String name, String roomType, RateTypeEnum rateType, Double ratePerNight, Date validityStartDate, Date validityEndDate) {
+    public RoomRate(String name, RateTypeEnum rateType, Double ratePerNight, Date validityStartDate, Date validityEndDate) {
         this.name = name;
-        this.roomType = roomType;
         this.rateType = rateType;
         this.ratePerNight = ratePerNight;
         this.validityStartDate = validityStartDate;
@@ -98,14 +95,6 @@ public class RoomRate implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getRoomType() {
-        return roomType;
-    }
-
-    public void setRoomType(String roomType) {
-        this.roomType = roomType;
     }
 
     public Double getRatePerNight() {

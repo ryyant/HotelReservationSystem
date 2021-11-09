@@ -2,6 +2,8 @@ package hotelmanagementclient;
 
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
 import ejb.session.stateless.PartnerEntitySessionBeanRemote;
+import ejb.session.stateless.RoomEntitySessionBeanRemote;
+import ejb.session.stateless.RoomRateEntitySessionBeanRemote;
 import ejb.session.stateless.RoomTypeEntitySessionBeanRemote;
 import entity.Employee;
 import java.util.Scanner;
@@ -13,6 +15,8 @@ public class MainApp {
     private EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote;
     private PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote;
     private RoomTypeEntitySessionBeanRemote roomTypeEntitySessionBeanRemote;
+    private RoomEntitySessionBeanRemote roomEntitySessionBeanRemote;
+    private RoomRateEntitySessionBeanRemote roomRateEntitySessionBeanRemote;
 
     private SystemAdministrationModule systemAdministrationModule;
     private HotelOperationModule hotelOperationModule;
@@ -23,10 +27,12 @@ public class MainApp {
     public MainApp() {
     }
 
-    public MainApp(EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote, RoomTypeEntitySessionBeanRemote roomTypeEntitySessionBeanRemote) {
+    public MainApp(EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote, RoomTypeEntitySessionBeanRemote roomTypeEntitySessionBeanRemote, RoomRateEntitySessionBeanRemote roomRateEntitySessionBeanRemote, RoomEntitySessionBeanRemote roomEntitySessionBeanRemote) {
         this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
         this.partnerEntitySessionBeanRemote = partnerEntitySessionBeanRemote;
         this.roomTypeEntitySessionBeanRemote = roomTypeEntitySessionBeanRemote;
+        this.roomEntitySessionBeanRemote = roomEntitySessionBeanRemote;
+        this.roomRateEntitySessionBeanRemote = roomRateEntitySessionBeanRemote;
     }
 
     public void runApp() {
@@ -58,7 +64,7 @@ public class MainApp {
                         }
 
                         if (currentEmployeeEntity.getUserRole() == UserRoleEnum.OPERATION_MANAGER || currentEmployeeEntity.getUserRole() == UserRoleEnum.SALES_MANAGER) {
-                            hotelOperationModule = new HotelOperationModule(currentEmployeeEntity, roomTypeEntitySessionBeanRemote);
+                            hotelOperationModule = new HotelOperationModule(currentEmployeeEntity, roomTypeEntitySessionBeanRemote, roomRateEntitySessionBeanRemote, roomEntitySessionBeanRemote);
                             hotelOperationModule.menuHotelOperation();
                         }
 

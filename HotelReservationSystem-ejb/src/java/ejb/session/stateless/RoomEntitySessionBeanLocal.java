@@ -8,7 +8,6 @@ package ejb.session.stateless;
 import entity.Room;
 import java.util.List;
 import javax.ejb.Local;
-import util.enumeration.RoomStatusEnum;
 import util.exception.DuplicateException;
 import util.exception.RoomNotFoundException;
 
@@ -21,10 +20,10 @@ public interface RoomEntitySessionBeanLocal {
 
     public List<Room> viewAllRooms() throws RoomNotFoundException;
 
-    public long createNewRoom(int roomNumber, Long roomTypeId, Long roomRateId) throws DuplicateException;
-
-    public void updateRoom(int roomNumber, int newRoomNumber, RoomStatusEnum newRoomStatus) throws RoomNotFoundException;
-
     public void deleteRoom(int roomNumber) throws RoomNotFoundException;
+
+    public void updateRoom(Room room) throws RoomNotFoundException;
+
+    public long createNewRoom(int roomNumber, Long roomTypeId) throws DuplicateException;
     
 }

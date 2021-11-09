@@ -9,9 +9,11 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -38,6 +40,9 @@ public class RoomType implements Serializable {
     private List<String> amenities;
     @Column(nullable = false)
     private Boolean enabled;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    private RoomRate roomRate;
 
     public RoomType() {
     }
@@ -140,6 +145,14 @@ public class RoomType implements Serializable {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public RoomRate getRoomRate() {
+        return roomRate;
+    }
+
+    public void setRoomRate(RoomRate roomRate) {
+        this.roomRate = roomRate;
     }
     
 }

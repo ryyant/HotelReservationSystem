@@ -24,8 +24,8 @@ public interface RoomRateEntitySessionBeanLocal {
 
     public List<RoomRate> viewAllRoomRates() throws RoomRateNotFoundException;
 
-    public void updateRoomRate() throws RoomRateNotFoundException;
+    public void updateRoomRate(RoomRate roomRate);
 
-    public void deleteRoomRate(RoomRate roomRate) throws RoomRateNotFoundException;
+    public void deleteRoomRate(RoomRate roomRate);
     
 }
