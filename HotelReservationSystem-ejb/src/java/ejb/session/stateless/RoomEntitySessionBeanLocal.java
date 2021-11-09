@@ -11,6 +11,7 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.DuplicateException;
 import util.exception.RoomNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -25,10 +26,11 @@ public interface RoomEntitySessionBeanLocal {
 
     public void updateRoom(Room room) throws RoomNotFoundException;
 
-    public long createNewRoom(int roomNumber, Long roomTypeId) throws DuplicateException;
+    public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
     
     public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
 
     public void allocateRooms();
+
 
 }

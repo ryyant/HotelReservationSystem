@@ -23,10 +23,10 @@ public interface RoomTypeEntitySessionBeanLocal {
     
     public RoomType viewRoomTypeDetails(String roomTypeName) throws RoomTypeNotFoundException;
 
-    public void deleteRoomType(RoomType roomType);
-
     public void updateRoomType(RoomType roomType);
 
     public long createNewRoomType(RoomType roomType, List<RoomRate> roomRates) throws DuplicateException;
+
+    public void deleteRoomType(Long roomTypeId);
     
 }

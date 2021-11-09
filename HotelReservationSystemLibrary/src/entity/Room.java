@@ -43,14 +43,14 @@ public class Room implements Serializable {
     private RoomType roomType;
 
     public Room() {
-        
+        this.roomStatus = RoomStatusEnum.AVAILABLE;
+        this.enabled = true;
     }
 
-    public Room(Integer roomNumber, RoomStatusEnum roomStatus, Boolean enabled) {
+    public Room(Integer roomNumber) {
         this();
         this.roomNumber = roomNumber;
-        this.roomStatus = roomStatus;
-        this.enabled = enabled;
+
     }
 
     public Long getRoomId() {
@@ -125,6 +125,5 @@ public class Room implements Serializable {
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
     }
-
 
 }
