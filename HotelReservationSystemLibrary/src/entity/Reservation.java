@@ -6,15 +6,17 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -29,13 +31,17 @@ public class Reservation implements Serializable {
     private Long reservationId;
     @Column(nullable = false)
     private Double amount;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date checkInDate;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date checkOutDate;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Occupant occupant;
     
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Partner partner;
     
     @OneToOne(fetch = FetchType.LAZY)
@@ -113,6 +119,22 @@ public class Reservation implements Serializable {
 
     public void setPartner(Partner partner) {
         this.partner = partner;
+    }
+
+    public Date getCheckInDate() {
+        return checkInDate;
+    }
+
+    public void setCheckInDate(Date checkInDate) {
+        this.checkInDate = checkInDate;
+    }
+
+    public Date getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    public void setCheckOutDate(Date checkOutDate) {
+        this.checkOutDate = checkOutDate;
     }
     
 }

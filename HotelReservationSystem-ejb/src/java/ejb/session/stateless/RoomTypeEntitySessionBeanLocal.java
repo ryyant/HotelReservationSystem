@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Local;
@@ -26,6 +27,6 @@ public interface RoomTypeEntitySessionBeanLocal {
 
     public void updateRoomType(RoomType roomType);
 
-    public long createNewRoomType(RoomType roomType, Long roomRateId) throws DuplicateException;
+    public long createNewRoomType(RoomType roomType, List<RoomRate> roomRates) throws DuplicateException;
     
 }

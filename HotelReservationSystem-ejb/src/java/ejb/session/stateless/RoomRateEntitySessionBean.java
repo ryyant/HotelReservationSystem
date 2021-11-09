@@ -25,7 +25,7 @@ public class RoomRateEntitySessionBean implements RoomRateEntitySessionBeanRemot
     private EntityManager em;
 
     @Override
-    public long createNewRoomType(RoomRate roomRate) throws DuplicateException {
+    public long createNewRoomRate(RoomRate roomRate) throws DuplicateException {
         try {
             em.persist(roomRate);
             em.flush();

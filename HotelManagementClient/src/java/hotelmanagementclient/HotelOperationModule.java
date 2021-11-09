@@ -10,6 +10,7 @@ import entity.RoomType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import util.enumeration.RoomStatusEnum;
 import util.enumeration.UserRoleEnum;
 import util.exception.DuplicateException;
 import util.exception.EmployeeNotFoundException;
@@ -189,14 +190,15 @@ public class HotelOperationModule {
             amenities.add(a);
             a = sc.nextLine().trim();
         }
+        // System.out.println("Choose Room Rates: ");
 
         RoomType roomType = new RoomType(name, description, size, bed, capacity, amenities, true);
-        /*try {
-            roomTypeEntitySessionBeanRemote.createNewRoomType(roomType);
+        try {
+            roomTypeEntitySessionBeanRemote.createNewRoomType(roomType, null);
             System.out.println("Room Type Successfully Created!\n");
         } catch (DuplicateException e) {
             System.out.println(e.getMessage());
-        }*/
+        }
     }
 
     // use case 8
@@ -251,7 +253,7 @@ public class HotelOperationModule {
         }
 
         System.out.println("What would you like to update?");
-        System.out.println("1. Name \n 2. Description \n 3. Room Size \n 4. No of Bed \n 5. Room Capacity \n 6. Amenities");
+        System.out.println("1. Name \n 2. Description \n 3. Room Size \n 4. No of Bed \n 5. Room Capacity \n 6. Amenities \n 7. Room Rates");
         int updateChoice = 0;
         updateChoice = sc.nextInt();
         System.out.println();
@@ -264,6 +266,7 @@ public class HotelOperationModule {
 
     // use case 10
     private void deleteRoomType() {
+        
 
     }
 
@@ -283,7 +286,20 @@ public class HotelOperationModule {
 
     // use case 12
     private void createNewRoom() {
+        Scanner sc = new Scanner(System.in);
 
+        System.out.println("***** Create New Room *****");
+        System.out.print("Enter Room Number: ");
+        int roomNum = sc.nextInt();
+        sc.nextLine();
+
+        Room room = new Room(roomNum, RoomStatusEnum.AVAILABLE, true);
+        /*try {
+            roomTypeEntitySessionBeanRemote.createNewRoomType(roomType, null);
+            System.out.println("Room Type Successfully Created!\n");
+        } catch (DuplicateException e) {
+            System.out.println(e.getMessage());
+        }*/
     }
 
     // use case 13

@@ -18,7 +18,7 @@ import util.exception.RoomRateNotFoundException;
 @Remote
 public interface RoomRateEntitySessionBeanRemote {
 
-    public long createNewRoomType(RoomRate roomRate) throws DuplicateException;
+    public long createNewRoomRate(RoomRate roomRate) throws DuplicateException;
 
     public RoomRate viewRoomRateDetails(String roomRateName) throws RoomRateNotFoundException;
 

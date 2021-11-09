@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Remote;
@@ -17,15 +18,15 @@ import util.exception.RoomTypeNotFoundException;
  */
 @Remote
 public interface RoomTypeEntitySessionBeanRemote {
-    
-    public long createNewRoomType(RoomType roomType, Long roomRateId) throws DuplicateException;
-    
+
+    public long createNewRoomType(RoomType roomType, List<RoomRate> roomRates) throws DuplicateException;
+
     public List<RoomType> viewAllRoomTypes() throws RoomTypeNotFoundException;
-    
+
     public RoomType viewRoomTypeDetails(String roomTypeName) throws RoomTypeNotFoundException;
 
     public void deleteRoomType(RoomType roomType);
 
     public void updateRoomType(RoomType roomType);
-    
+
 }

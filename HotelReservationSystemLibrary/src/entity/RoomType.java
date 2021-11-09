@@ -13,6 +13,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 /**
@@ -41,8 +42,11 @@ public class RoomType implements Serializable {
     @Column(nullable = false)
     private Boolean enabled;
     
+    @OneToMany
+    private List<RoomRate> roomRates;
+    
     @OneToOne(fetch = FetchType.LAZY)
-    private RoomRate roomRate;
+    private RoomType nextHigherRoomType;
 
     public RoomType() {
     }
@@ -147,12 +151,21 @@ public class RoomType implements Serializable {
         this.enabled = enabled;
     }
 
-    public RoomRate getRoomRate() {
-        return roomRate;
+
+    public RoomType getNextHigherRoomType() {
+        return nextHigherRoomType;
     }
 
-    public void setRoomRate(RoomRate roomRate) {
-        this.roomRate = roomRate;
+    public void setNextHigherRoomType(RoomType nextHigherRoomType) {
+        this.nextHigherRoomType = nextHigherRoomType;
+    }
+
+    public List<RoomRate> getRoomRates() {
+        return roomRates;
+    }
+
+    public void setRoomRates(List<RoomRate> roomRates) {
+        this.roomRates = roomRates;
     }
     
 }
