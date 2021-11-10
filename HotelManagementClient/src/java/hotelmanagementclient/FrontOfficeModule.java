@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import util.enumeration.UserRoleEnum;
 import util.exception.EmployeeNotFoundException;
 import util.exception.OccupantNotFoundException;
+import util.exception.ReservationNotFoundException;
 
 /**
  *
@@ -132,7 +133,7 @@ public class FrontOfficeModule {
 
             }
 
-        } catch (OccupantNotFoundException ex) {
+        } catch (OccupantNotFoundException | ReservationNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
 
@@ -143,7 +144,7 @@ public class FrontOfficeModule {
         System.out.println("Please key in Room Number >");
         Integer occupantName = sc.nextInt();
         
-        occupantEntitySessionBeanRemote.
+        //occupantEntitySessionBeanRemote.retrieveOccupantByNameAndPassport(name, passportNum);
         
         
         
