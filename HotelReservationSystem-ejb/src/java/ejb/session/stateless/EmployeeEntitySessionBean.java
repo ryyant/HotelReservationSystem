@@ -9,7 +9,9 @@ import entity.Employee;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import util.exception.DuplicateException;
 import util.exception.EmployeeNotFoundException;
 
@@ -35,7 +37,7 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
 
             return employee;
 
-        } catch (Exception e) {
+        } catch (NoResultException e) {
             throw new EmployeeNotFoundException("Wrong username / password!\n");
         }
     }
@@ -47,7 +49,7 @@ public class EmployeeEntitySessionBean implements EmployeeEntitySessionBeanRemot
             em.persist(newEmployee);
             em.flush();
             return newEmployee.getEmployeeId();
-        } catch (Exception e) {
+        } catch (PersistenceException e) {
             throw new DuplicateException("Username taken!\n");
         }
 

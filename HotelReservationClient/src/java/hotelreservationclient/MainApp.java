@@ -259,7 +259,7 @@ public class MainApp {
         System.out.println("-------THESE ARE YOUR RESERVATIONS--------");
         System.out.printf("%8s%20s%20s%15s\n", "Check In Date", "Check Out Date", "Room Type", "Amount");
         for (Reservation reservation : reservations) {
-            RoomType roomType = reservation.getRoom().getRoomType();
+            RoomType roomType = reservation.getRoomType();
             System.out.printf("%8s%20s%20s%15s\n", reservation.getCheckInDate(), reservation.getCheckOutDate(), roomType.toString(), reservation.getAmount());
 
         }

@@ -6,11 +6,13 @@
 package ejb.session.stateless;
 
 import entity.RoomRate;
+import entity.RoomType;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import util.exception.DuplicateException;
 import util.exception.RoomRateNotFoundException;
 
@@ -31,8 +33,7 @@ public class RoomRateEntitySessionBean implements RoomRateEntitySessionBeanRemot
             em.flush();
             return roomRate.getRoomRateId();
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (PersistenceException e) {
             throw new DuplicateException("Room rate already created!\n");
         }
     }
@@ -73,20 +74,23 @@ public class RoomRateEntitySessionBean implements RoomRateEntitySessionBeanRemot
     }
 
     @Override
-    public void deleteRoomRate(Long roomRateId) {
+    public void deleteRoomRate(RoomRate roomRate) {
 
-        List<RoomRate> roomRates = em.createQuery("SELECT r from RoomType r WHERE r.roomRate.roomRateId = ?1")
-                .setParameter(1, roomRateId)
+        List<RoomType> roomTypes = em.createQuery("SELECT r from RoomType r")
                 .getResultList();
-
-        RoomRate roomRate = em.find(RoomRate.class, roomRateId);
         
-        // Check if room type is used
-        if (roomRates.size() > 0) {
-            // mark as disabled if used
+        boolean used = false;
+        for (RoomType roomType : roomTypes) {
+            if (roomType.getRoomRates().contains(roomRate)) {
+                used = true;
+            }
+        }
+
+        if (used) {
             roomRate.setEnabled(false);
         } else {
             em.remove(roomRate);
         }
+        
     }
 }

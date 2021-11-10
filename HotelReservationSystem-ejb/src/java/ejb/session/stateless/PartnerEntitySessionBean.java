@@ -10,6 +10,7 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import util.exception.DuplicateException;
 import util.exception.PartnerNotFoundException;
 
@@ -26,44 +27,26 @@ public class PartnerEntitySessionBean implements PartnerEntitySessionBeanRemote,
     @Override
     public long createNewPartner(String username, String password) throws DuplicateException {
         try {
-            
-            // Check if partner already exists
-            List<Partner> partners = em.createQuery("SELECT p from Partner p WHERE p.username = ?1")
-                    .setParameter(1, username)
-                    .getResultList();
-            
-            if (partners.size() == 1) {
-                throw new DuplicateException();
-            }
-          
-            // create employee instance and persist to db
             Partner partner = new Partner(username, password);
             em.persist(partner);
             em.flush();
             return partner.getPartnerId();
-            
-        } catch (DuplicateException e) {
+
+        } catch (PersistenceException e) {
             throw new DuplicateException("Username taken!\n");
         }
     }
-    
+
     @Override
     public List<Partner> viewAllPartners() throws PartnerNotFoundException {
-        try {
-            List<Partner> partners = em.createQuery("SELECT p from Partner p")
-                    .getResultList();
-            
-            // Check if employee list is empty
-            if (partners.isEmpty()) {
-                throw new PartnerNotFoundException();
-            }
-            
-            return partners;
-            
-        } catch (PartnerNotFoundException e) {
+        List<Partner> partners = em.createQuery("SELECT p from Partner p")
+                .getResultList();
+
+        // Check if employee list is empty
+        if (partners.isEmpty()) {
             throw new PartnerNotFoundException("No partners currently!\n");
         }
-    }
-    
 
+        return partners;
+    }
 }

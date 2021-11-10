@@ -22,15 +22,17 @@ public interface RoomEntitySessionBeanLocal {
 
     public List<Room> viewAllRooms() throws RoomNotFoundException;
 
-    public void deleteRoom(int roomNumber) throws RoomNotFoundException;
-
-    public void updateRoom(Room room) throws RoomNotFoundException;
+    public void updateRoom(Room room);
 
     public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
     
     public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
 
     public void allocateRooms();
+
+    public Room getRoomByRoomNumber(int roomNumber) throws RoomNotFoundException;
+
+    public void deleteRoom(Room room);
 
 
 }

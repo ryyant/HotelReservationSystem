@@ -11,7 +11,6 @@ import entity.Room;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import util.enumeration.RoomStatusEnum;
 import util.exception.ReservationNotFoundException;
 
 /**
@@ -35,13 +34,11 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         Reservation newReservation = new Reservation();
         Room room = em.find(Room.class, roomId);
 
-        newReservation.setRoom(room);
+        newReservation.getRooms().add(room);
         newReservation.setOccupant(currentGuest);
 
         currentGuest.getReservations().size();
         currentGuest.getReservations().add(newReservation);
-
-        room.setReservation(newReservation);
         
         return newReservation;
 

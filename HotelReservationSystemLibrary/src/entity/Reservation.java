@@ -7,13 +7,16 @@ package entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -38,22 +41,31 @@ public class Reservation implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date checkOutDate;
 
+    // optional
     @ManyToOne(fetch = FetchType.LAZY)
     private Occupant occupant;
-    
+
+    // optionnal
     @ManyToOne(fetch = FetchType.LAZY)
     private Partner partner;
-    
+
+    @OneToMany (mappedBy = "reservation")
+    private List<Room> rooms;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(nullable = false)
+    private RoomType roomType;
+
     @OneToOne(fetch = FetchType.LAZY)
-    private Room room;
-    
+    private Report report;
+
     public Reservation() {
     }
-    
+
     public Reservation(Double amount) {
         this.amount = amount;
     }
-    
+
     public Long getReservationId() {
         return reservationId;
     }
@@ -87,22 +99,12 @@ public class Reservation implements Serializable {
         return "entity.Reservation[ id=" + reservationId + " ]";
     }
 
-
     public Double getAmount() {
         return amount;
     }
 
-
     public void setAmount(Double amount) {
         this.amount = amount;
-    }
-
-    public Room getRoom() {
-        return room;
-    }
-
-    public void setRoom(Room room) {
-        this.room = room;
     }
 
     public Occupant getOccupant() {
@@ -136,5 +138,29 @@ public class Reservation implements Serializable {
     public void setCheckOutDate(Date checkOutDate) {
         this.checkOutDate = checkOutDate;
     }
-    
+
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
+    }
+
+    public Report getReport() {
+        return report;
+    }
+
+    public void setReport(Report report) {
+        this.report = report;
+    }
+
 }

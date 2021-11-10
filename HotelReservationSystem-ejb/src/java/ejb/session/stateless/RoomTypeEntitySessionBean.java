@@ -75,20 +75,28 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
     }
 
     @Override
-    public void deleteRoomType(Long roomTypeId) {
+    public void deleteRoomType(RoomType roomType) {
+        
+        RoomType managedRoomType = em.merge(roomType);
+        
+        List<RoomType> roomTypesUsedInRoom = em.createQuery("SELECT r from Room r WHERE r.roomType.roomTypeId = ?1")
+                .setParameter(1, roomType.getRoomTypeId())
+                .getResultList();
 
-        List<RoomType> roomTypes = em.createQuery("SELECT r from Room r WHERE r.roomType.roomTypeId = ?1")
-                .setParameter(1, roomTypeId)
+        List<RoomType> roomTypesInReservation = em.createQuery("SELECT r from Reservation r WHERE r.roomType.roomTypeId = ?1")
+                .setParameter(1, roomType.getRoomTypeId())
                 .getResultList();
         
-        RoomType roomType = em.find(RoomType.class, roomTypeId);
+        List<RoomRate> roomTypesInRoomRate = em.createQuery("SELECT r from RoomRate r WHERE r.roomType.roomTypeId = ?1")
+                .setParameter(1, roomType.getRoomTypeId())
+                .getResultList();
 
         // Check if room type is used
-        if (roomTypes.size() > 0) {
+        if (roomTypesUsedInRoom.size() > 0 || roomTypesInReservation.size() > 0 || roomTypesInRoomRate.size() > 0) {
             // mark as disabled if used
-            roomType.setEnabled(false);
+            managedRoomType.setEnabled(false);
         } else {
-            em.remove(roomType);
+            em.remove(managedRoomType);
         }
     }
 }

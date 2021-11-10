@@ -43,7 +43,7 @@ public class RoomType implements Serializable {
     @Column(nullable = false)
     private Boolean enabled;
 
-    @OneToMany
+    @OneToMany(mappedBy = "roomType")
     private List<RoomRate> roomRates;
 
     @OneToOne(fetch = FetchType.LAZY)

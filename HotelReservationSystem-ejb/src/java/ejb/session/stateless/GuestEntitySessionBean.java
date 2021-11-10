@@ -5,11 +5,12 @@
  */
 package ejb.session.stateless;
 
-import entity.Employee;
 import entity.Guest;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import util.exception.DuplicateException;
 import util.exception.GuestNotFoundException;
 
@@ -30,7 +31,7 @@ public class GuestEntitySessionBean implements GuestEntitySessionBeanRemote, Gue
            em.persist(guest);
            em.flush();
            return guest;
-       } catch (Exception e) {
+       } catch (PersistenceException e) {
            throw new DuplicateException("Guest exists!");
        }
     }
@@ -47,7 +48,7 @@ public class GuestEntitySessionBean implements GuestEntitySessionBeanRemote, Gue
 
             return guest;
 
-        } catch (Exception e) {
+        } catch (NoResultException e) {
             throw new GuestNotFoundException("Wrong username / password!\n");
         }
     }

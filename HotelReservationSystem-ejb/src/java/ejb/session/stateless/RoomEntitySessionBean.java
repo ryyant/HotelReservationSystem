@@ -35,7 +35,6 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         try {
             Room room = new Room(roomNumber);
             em.persist(room);
-            em.flush();
             RoomType roomType = (RoomType) em.createQuery("SELECT r from RoomType r WHERE r.name = ?1")
                     .setParameter(1, roomTypeName)
                     .getSingleResult();
@@ -68,25 +67,13 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     }
 
     @Override
-    public void updateRoom(Room room) throws RoomNotFoundException {
-        em.merge(room);
-    }
-
-    @Override
-    public void deleteRoom(int roomNumber) throws RoomNotFoundException {
-
+    public Room getRoomByRoomNumber(int roomNumber) throws RoomNotFoundException {
         try {
             Room room = (Room) em.createQuery("SELECT r from Room r WHERE r.roomNumber = ?1")
                     .setParameter(1, roomNumber)
                     .getSingleResult();
 
-            // no reservation
-            if (room.getReservation()
-                    == null) {
-                em.remove(room);
-            } else {
-                room.setEnabled(false);
-            }
+            return room;
 
         } catch (NoResultException e) {
             throw new RoomNotFoundException("Room does not exist!");
@@ -94,32 +81,53 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     }
 
     @Override
+    public void updateRoom(Room room) {
+        em.merge(room);
+    }
+
+    @Override
+    public void deleteRoom(Room room) {
+
+        Room managedRoom = em.merge(room);
+
+        if (room.getReservation() != null) {
+            managedRoom.setEnabled(false);
+            managedRoom.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
+        } else {
+            em.remove(managedRoom);
+        }
+    }
+
+    @Override
     public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
 
-        // get all available rooms
-        List<Room> rooms = em.createQuery("SELECT r FROM Room r WHERE r.roomStatus = ?1 AND r.enabled = TRUE")
+        // get all ROOM that are enabled and available
+        List<Room> rooms = em.createQuery("SELECT r FROM Room r WHERE r.roomStatus = ?1 AND r.enabled = ?2")
                 .setParameter(1, RoomStatusEnum.AVAILABLE)
+                .setParameter(2, true)
                 .getResultList();
 
         List<Room> availRooms = new ArrayList<>();
 
         for (Room r : rooms) {
-            r.getRoomType();
-            r.getReservation();
-
-            Reservation res = r.getReservation();
-
             // get those with no reservations
+            Reservation res = r.getReservation();
             if (res == null) {
                 availRooms.add(r);
-            }
-
-            // those with reservations: checkInDateInput >= reservation.checkOutDate
-            // OR those with reservations: checkOutDateInput <= reservation.checkInDate
+            } // those with reservations: checkInDateInput >= reservation.checkOutDate OR those with reservations: checkOutDateInput <= reservation.checkInDate
             else if (res.getCheckOutDate().compareTo(checkInDateInput) < 0 || res.getCheckInDate().compareTo(checkOutDateInput) > 0) {
                 availRooms.add(r);
             }
+        }
 
+        List<RoomType> availRoomTypes = new ArrayList<>();
+
+        // add all the distinct room types of these avail rooms
+        for (Room r : availRooms) {
+            RoomType roomType = r.getRoomType();
+            if (!availRoomTypes.contains(roomType)){
+                availRoomTypes.add(roomType);
+            }
         }
 
         if (availRooms.isEmpty()) {
@@ -140,15 +148,14 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
 
         for (Reservation r : reservations) {
 
-            Room room = r.getRoom();
-
+            /*
             if (room.getRoomStatus().equals("AVAILABLE")) {
                 room.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
             } else {
                 // automatically allocate upgrade logic here
 
                 //Report report = new Report(e);
-            }
+            }*/
         }
 
     }

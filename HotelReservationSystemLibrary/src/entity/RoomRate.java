@@ -11,9 +11,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import static javax.persistence.EnumType.STRING;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import util.enumeration.RateTypeEnum;
@@ -44,6 +47,10 @@ public class RoomRate implements Serializable {
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     private Date validityEndDate;
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(nullable = false)
+    private RoomType roomType;
 
     public RoomRate() {
         this.enabled = true;
@@ -137,6 +144,14 @@ public class RoomRate implements Serializable {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
 
 }

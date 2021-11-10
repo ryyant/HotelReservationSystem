@@ -14,7 +14,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import util.enumeration.RoomStatusEnum;
 
 /**
@@ -36,11 +37,12 @@ public class Room implements Serializable {
     @Column(nullable = false)
     private Boolean enabled;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "room")
-    private Reservation reservation;
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)   
+    @JoinColumn(nullable = false)
     private RoomType roomType;
+    
+    @ManyToOne(fetch = FetchType.LAZY)   
+    private Reservation reservation;
 
     public Room() {
         this.roomStatus = RoomStatusEnum.AVAILABLE;
@@ -110,20 +112,20 @@ public class Room implements Serializable {
         this.enabled = enabled;
     }
 
-    public Reservation getReservation() {
-        return reservation;
-    }
-
-    public void setReservation(Reservation reservation) {
-        this.reservation = reservation;
-    }
-
     public RoomType getRoomType() {
         return roomType;
     }
 
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
+    }
+
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
     }
 
 }

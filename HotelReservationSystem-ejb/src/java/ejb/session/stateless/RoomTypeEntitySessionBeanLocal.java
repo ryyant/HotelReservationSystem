@@ -27,6 +27,6 @@ public interface RoomTypeEntitySessionBeanLocal {
 
     public long createNewRoomType(RoomType roomType, List<RoomRate> roomRates) throws DuplicateException;
 
-    public void deleteRoomType(Long roomTypeId);
+    public void deleteRoomType(RoomType roomType);
     
 }

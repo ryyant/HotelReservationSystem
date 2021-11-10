@@ -26,5 +26,5 @@ public interface RoomRateEntitySessionBeanRemote {
 
     public void updateRoomRate(RoomRate roomRate);
 
-    public void deleteRoomRate(Long roomRateId);
+    public void deleteRoomRate(RoomRate roomRate);
 }
