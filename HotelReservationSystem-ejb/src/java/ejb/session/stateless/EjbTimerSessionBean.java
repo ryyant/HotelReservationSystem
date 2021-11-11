@@ -17,7 +17,7 @@ public class EjbTimerSessionBean
     }
     
     
-    @Schedule(hour = "*", minute = "*", second = "*/10", info = "scheduleEvery5Second")
+    @Schedule(hour = "*", minute = "*", second = "*/25", info = "scheduleEvery5Second")
     public void automaticTimer()
     {
         System.out.println("********** EjbTimerSession.automaticTimer(): scheduleEvery5Second");

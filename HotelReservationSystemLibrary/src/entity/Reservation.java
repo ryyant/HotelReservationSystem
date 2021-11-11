@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -35,6 +36,8 @@ public class Reservation implements Serializable {
     @Column(nullable = false)
     private Double amount;
     @Column(nullable = false)
+    private int quantity;
+    @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     private Date checkInDate;
     @Column(nullable = false)
@@ -49,7 +52,7 @@ public class Reservation implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Partner partner;
 
-    @OneToMany (mappedBy = "reservation")
+    @OneToMany(mappedBy = "reservation")
     private List<Room> rooms;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -59,7 +62,16 @@ public class Reservation implements Serializable {
     @OneToOne(fetch = FetchType.LAZY)
     private Report report;
 
+    public Reservation(Double amount, int quantity, Date checkInDate, Date checkOutDate) {
+        this();
+        this.amount = amount;
+        this.quantity = quantity;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
+    }
+
     public Reservation() {
+        this.rooms = new ArrayList<>();
     }
 
     public Reservation(Double amount) {
@@ -161,6 +173,14 @@ public class Reservation implements Serializable {
 
     public void setReport(Report report) {
         this.report = report;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
 }

@@ -7,7 +7,9 @@ package ejb.session.stateless;
 
 import entity.Guest;
 import entity.Reservation;
-import entity.Room;
+import entity.RoomType;
+import java.util.Date;
+import java.util.HashMap;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -30,16 +32,20 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         return reservation.getReservationId();
     }
 
-    public Reservation reserveRoom(Long roomId, Guest currentGuest) {
-        Reservation newReservation = new Reservation();
-        Room room = em.find(Room.class, roomId);
+    public Reservation reserveRoom(Long roomTypeId, int quantity, Guest currentGuest, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate) {
 
-        newReservation.getRooms().add(room);
+        currentGuest = em.merge(currentGuest);
+        RoomType roomType = em.find(RoomType.class, roomTypeId);
+
+        double amount = priceMapping.get(roomType);
+        Reservation newReservation = new Reservation(amount, quantity, checkInDate, checkOutDate);
+        em.persist(newReservation);
+
+        newReservation.setRoomType(roomType);
         newReservation.setOccupant(currentGuest);
 
-        currentGuest.getReservations().size();
         currentGuest.getReservations().add(newReservation);
-        
+
         return newReservation;
 
     }
@@ -51,7 +57,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         if (reservation != null) {
             return reservation;
         } else {
-            throw new ReservationNotFoundException("Reservation with ID : " + reservationId + " does not exist!");
+            throw new ReservationNotFoundException("Reservation with ID: " + reservationId + " does not exist!");
         }
     }
 }

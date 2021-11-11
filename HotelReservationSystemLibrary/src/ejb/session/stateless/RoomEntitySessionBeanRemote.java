@@ -6,7 +6,9 @@
 package ejb.session.stateless;
 
 import entity.Room;
+import entity.RoomType;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.DuplicateException;
@@ -27,12 +29,15 @@ public interface RoomEntitySessionBeanRemote {
 
     public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
     
-    public List<Room> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
-
     public void allocateRooms();
 
     public Room getRoomByRoomNumber(int roomNumber) throws RoomNotFoundException;
 
     public void deleteRoom(Room room);
+
+    public double onlineDayPrevailingRate(Date date, RoomType roomType);
+
+    public HashMap<RoomType, Double> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
+
 
 }

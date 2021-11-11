@@ -7,6 +7,9 @@ package ejb.session.stateless;
 
 import entity.Guest;
 import entity.Reservation;
+import entity.RoomType;
+import java.util.Date;
+import java.util.HashMap;
 import javax.ejb.Remote;
 import util.exception.ReservationNotFoundException;
 
@@ -17,8 +20,8 @@ import util.exception.ReservationNotFoundException;
 @Remote
 public interface ReservationEntitySessionBeanRemote {
 
-    public Reservation reserveRoom(Long roomId, Guest currentGuest);
+    public Reservation reserveRoom(Long roomTypeId, int quantity, Guest currentGuest, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate);
 
     public Reservation retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
 
-    }
+}

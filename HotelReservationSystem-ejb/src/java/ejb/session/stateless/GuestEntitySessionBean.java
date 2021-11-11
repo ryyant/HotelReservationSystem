@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Guest;
+import entity.Reservation;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -45,6 +46,12 @@ public class GuestEntitySessionBean implements GuestEntitySessionBeanRemote, Gue
                     .setParameter(1, username)
                     .setParameter(2, password)
                     .getSingleResult();
+            
+            // lazy fetching
+            guest.getReservations().size();
+            for (Reservation r : guest.getReservations()) {
+                r.getRoomType();
+            }
 
             return guest;
 

@@ -46,12 +46,12 @@ public class DataInitSessionBean {
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        Date start;
-        Date end;
+        Date start, endPeak, endPromo;
 
         try {
-            start = dateFormat.parse("02-10-2010");
-            end = dateFormat.parse("02-11-2010");
+            start = dateFormat.parse("10-01-2000");
+            endPeak = dateFormat.parse("12-01-2000");
+            endPromo = dateFormat.parse("20-01-2000");
 
             if (em.find(RoomRate.class, 1l) == null) {
 
@@ -62,12 +62,22 @@ public class DataInitSessionBean {
                 em.persist(roomType);
 
                 RoomRate roomRate = null;
-                roomRate = new RoomRate("Deluxe Room Published", RateTypeEnum.PUBLISHED, 100.0, start, end);
+                roomRate = new RoomRate("Deluxe Room Published", RateTypeEnum.PUBLISHED, 100.0, null, null);
                 roomRate.setRoomType(roomType);
                 roomType.getRoomRates().add(roomRate);
                 em.persist(roomRate);
 
-                roomRate = new RoomRate("Deluxe Room Normal", RateTypeEnum.NORMAL, 50.0, start, end);
+                roomRate = new RoomRate("Deluxe Room Normal", RateTypeEnum.NORMAL, 50.0, null, null);
+                roomRate.setRoomType(roomType);
+                roomType.getRoomRates().add(roomRate);
+                em.persist(roomRate);
+
+                roomRate = new RoomRate("Deluxe Room Peak", RateTypeEnum.PEAK, 80.0, start, endPeak);
+                roomRate.setRoomType(roomType);
+                roomType.getRoomRates().add(roomRate);
+                em.persist(roomRate);
+
+                roomRate = new RoomRate("Deluxe Room Promotion", RateTypeEnum.PROMOTION, 40.0, start, endPromo);
                 roomRate.setRoomType(roomType);
                 roomType.getRoomRates().add(roomRate);
                 em.persist(roomRate);
