@@ -64,6 +64,8 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         Reservation reservation = em.find(Reservation.class, reservationId);
 
         if (reservation != null) {
+            reservation.getRoomType();
+
             return reservation;
         } else {
             throw new ReservationNotFoundException("Reservation with ID: " + reservationId + " does not exist!");
@@ -76,7 +78,11 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         Occupant occupant = em.find(Occupant.class, occupantId);
 
         List<Reservation> reservations = occupant.getReservations();
+
         if (!reservations.isEmpty()) {
+            for (Reservation reservation : reservations) {
+                reservation.getRoomType();
+            }
             return reservations;
         } else {
             throw new ReservationNotFoundException("You do not have any reservations made!");

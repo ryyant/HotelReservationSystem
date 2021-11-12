@@ -5,6 +5,7 @@ import ejb.session.stateless.ReservationEntitySessionBeanRemote;
 import ejb.session.stateless.RoomEntitySessionBeanRemote;
 import entity.Guest;
 import entity.Reservation;
+import entity.Room;
 import entity.RoomType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -236,7 +237,8 @@ public class MainApp {
                 System.out.print("Enter Id of the room that you would like to reserve! > ");
                 Long roomTypeId = sc.nextLong();
                 sc.nextLine();
-                System.out.print("How many do you want? > ");
+
+                System.out.print("How many rooms would you like to book? > ");
                 int quantity = sc.nextInt();
                 sc.nextLine();
 
@@ -256,29 +258,37 @@ public class MainApp {
 
     // use case 5
     private void viewReservationDetails(Long reservationId) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
         try {
             Reservation reservation = reservationEntitySessionBeanRemote.retrieveReservationByReservationId(reservationId);
+            System.out.println("Here are the details for your reservation with ID: " + reservationId);
+            System.out.printf("%15s%20s%20s%10s%20s\n", "Check In Date", "Check Out Date", "Room Type", "Amount", "Number of Rooms");
+            String checkInDate = formatter.format(reservation.getCheckInDate());
+            String checkOutDate = formatter.format(reservation.getCheckOutDate());
+            RoomType roomType = reservation.getRoomType();
 
+            System.out.printf("%15s%20s%20s%10s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
         } catch (ReservationNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
 
     }
-
     // use case 6
+
     private void viewAllReservations() {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         try {
             List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(currentGuestEntity.getOccupantId());
-            System.out.println("--------------------------YOUR RESERVATIONS--------------------------");
-            System.out.printf("%18s%18s%10s%10s%20s%n\n", "Check In Date", "Check Out Date", "Room Type", "Amount", "Number of Rooms");
+            System.out.println("----------------------YOUR RESERVATIONS-----------------------");
+            System.out.printf("%15s%20s%20s\n", "Check In Date", "Check Out Date", "Room Type");
             for (Reservation reservation : reservations) {
                 String checkInDate = formatter.format(reservation.getCheckInDate());
                 String checkOutDate = formatter.format(reservation.getCheckOutDate());
 
                 RoomType roomType = reservation.getRoomType();
-                System.out.printf("%15s%20s%20s%10s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
+                System.out.printf("%15s%20s%20s\n", checkInDate, checkOutDate, roomType.getName());
 
             }
 
