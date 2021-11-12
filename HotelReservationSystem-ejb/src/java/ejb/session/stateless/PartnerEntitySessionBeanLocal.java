@@ -21,5 +21,7 @@ public interface PartnerEntitySessionBeanLocal {
     public long createNewPartner(String username, String password) throws DuplicateException;
 
     public List<Partner> viewAllPartners() throws PartnerNotFoundException;
+
+    public Partner partnerLogin(String username, String password) throws PartnerNotFoundException;
     
 }

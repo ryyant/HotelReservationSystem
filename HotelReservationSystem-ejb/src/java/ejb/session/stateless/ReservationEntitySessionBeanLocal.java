@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Occupant;
+import entity.Partner;
 import entity.Reservation;
 import entity.RoomType;
 import java.util.Date;
@@ -28,6 +29,8 @@ public interface ReservationEntitySessionBeanLocal {
 
     public Reservation reserveRoom(Long roomTypeId, int quantity, Occupant occupant, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate);
 
+    public Reservation reserveRoom(Long roomTypeId, int quantity, Partner partner, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate);
+
     public List<Reservation> getAllReservations();
 
     public void allocateCurrentDayReservations();
@@ -37,5 +40,7 @@ public interface ReservationEntitySessionBeanLocal {
     public void allocateCurrentDayReservations(Date futureDate);
 
     public void checkOut(int roomNumber) throws RoomNotFoundException;
+
+    public List<Reservation> retrieveReservationsByPartnerId(Long partnerId) throws ReservationNotFoundException;
 
 }

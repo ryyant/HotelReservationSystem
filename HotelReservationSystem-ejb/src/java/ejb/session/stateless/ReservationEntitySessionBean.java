@@ -113,6 +113,23 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
             throw new ReservationNotFoundException("You do not have any reservations made!");
         }
     }
+    
+     @Override
+    public List<Reservation> retrieveReservationsByPartnerId(Long partnerId) throws ReservationNotFoundException {
+
+        Partner partner = em.find(Partner.class, partnerId);
+
+        List<Reservation> reservations = partner.getReservations();
+
+        if (!reservations.isEmpty()) {
+            for (Reservation reservation : reservations) {
+                reservation.getRoomType();
+            }
+            return reservations;
+        } else {
+            throw new ReservationNotFoundException("You do not have any reservations made!");
+        }
+    }
 
     @Override
     public List<Reservation> getAllReservations() {

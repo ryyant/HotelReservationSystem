@@ -5,13 +5,17 @@
  */
 package ejb.session.stateless;
 
+import entity.Guest;
 import entity.Partner;
+import entity.Reservation;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import util.exception.DuplicateException;
+import util.exception.GuestNotFoundException;
 import util.exception.PartnerNotFoundException;
 
 /**
@@ -37,6 +41,11 @@ public class PartnerEntitySessionBean implements PartnerEntitySessionBeanRemote,
         }
     }
 
+    /*@Override 
+    public String retrieveUsernameByPartnerId(Long partnerId) {
+        Partner
+    }
+     */
     @Override
     public List<Partner> viewAllPartners() throws PartnerNotFoundException {
         List<Partner> partners = em.createQuery("SELECT p from Partner p")
@@ -48,5 +57,28 @@ public class PartnerEntitySessionBean implements PartnerEntitySessionBeanRemote,
         }
 
         return partners;
+    }
+
+    @Override
+    public Partner partnerLogin(String username, String password) throws PartnerNotFoundException {
+        try {
+
+            // Check if username and password correct
+            Partner partner = (Partner) em.createQuery("SELECT p from Partner p WHERE p.username = ?1 AND p.password = ?2")
+                    .setParameter(1, username)
+                    .setParameter(2, password)
+                    .getSingleResult();
+
+            // lazy fetching
+            partner.getReservations().size();
+            for (Reservation r : partner.getReservations()) {
+                r.getRoomType();
+            }
+
+            return partner;
+
+        } catch (NoResultException e) {
+            throw new PartnerNotFoundException("Wrong username / password!\n");
+        }
     }
 }
