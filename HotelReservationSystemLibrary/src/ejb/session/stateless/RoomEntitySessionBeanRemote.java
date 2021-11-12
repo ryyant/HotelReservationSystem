@@ -8,7 +8,6 @@ package ejb.session.stateless;
 import entity.Room;
 import entity.RoomType;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.DuplicateException;
@@ -21,7 +20,6 @@ import util.exception.RoomTypeNotFoundException;
  */
 @Remote
 public interface RoomEntitySessionBeanRemote {
-
 
     public List<Room> viewAllRooms() throws RoomNotFoundException;
 
@@ -37,6 +35,6 @@ public interface RoomEntitySessionBeanRemote {
 
     public double walkInDayPrevailingRate(Date date, RoomType roomType);
 
-    public HashMap<RoomType, Double> searchRoom(String searchType, int numberOfRoomsInput, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
+    public List<RoomType> searchRoom(int numOfRoomsReq, Date checkInDate, Date checkOutDate) throws RoomNotFoundException;
 
 }

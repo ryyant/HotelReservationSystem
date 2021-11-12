@@ -9,16 +9,16 @@ import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import util.enumeration.RateTypeEnum;
 import util.enumeration.RoomStatusEnum;
 import util.exception.DuplicateException;
@@ -38,20 +38,23 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     @Override
     public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException {
         try {
+
             Room room = new Room(roomNumber);
-            em.persist(room);
+
             RoomType roomType = (RoomType) em.createQuery("SELECT r from RoomType r WHERE r.name = ?1")
                     .setParameter(1, roomTypeName)
                     .getSingleResult();
 
             room.setRoomType(roomType);
+            em.persist(room);
+            em.flush();
+
             return room.getRoomId();
 
         } catch (NoResultException e) {
             throw new RoomTypeNotFoundException("Room Type does not exist!");
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (PersistenceException e) {
             throw new DuplicateException("Room already created!\n");
         }
 
@@ -77,7 +80,8 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
             Room room = (Room) em.createQuery("SELECT r from Room r WHERE r.roomNumber = ?1")
                     .setParameter(1, roomNumber)
                     .getSingleResult();
-
+            room.getRoomType();
+            room.getReservation();
             return room;
 
         } catch (NoResultException e) {
@@ -104,16 +108,16 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     }
 
     @Override
-    public HashMap<RoomType, Double> searchRoom(String searchType, int numberOfRoomsInput, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
-
-        // RoomType : Amount for period stated.
-        HashMap<RoomType, Double> map = new HashMap<>();
+    public List<RoomType> searchRoom(int numOfRoomsReq, Date checkInDate, Date checkOutDate) throws RoomNotFoundException {
 
         // Room Type : Count Required for search.
         HashMap<RoomType, Integer> roomTypeToQty = new HashMap<>();
 
         // list of available rooms
         List<Room> availRooms = new ArrayList<>();
+
+        // list of available room types
+        List<RoomType> availRoomTypes = new ArrayList<>();
 
         // get all ROOM that are enabled and available
         List<Room> rooms = em.createQuery("SELECT r FROM Room r WHERE r.roomStatus = ?1 AND r.enabled = ?2")
@@ -128,7 +132,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
             if (res == null) {
                 availRooms.add(r);
             } // those with reservations: checkInDateInput >= reservation.checkOutDate OR those with reservations: checkOutDateInput <= reservation.checkInDate
-            else if (res.getCheckOutDate().compareTo(checkInDateInput) < 0 || res.getCheckInDate().compareTo(checkOutDateInput) > 0) {
+            else if (res.getCheckOutDate().compareTo(checkInDate) < 0 || res.getCheckInDate().compareTo(checkOutDate) > 0) {
                 availRooms.add(r);
             }
         }
@@ -144,41 +148,22 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
             }
         }
 
+        // check if avail room types are SUFFICIENT
+        for (RoomType rt : roomTypeToQty.keySet()) {
+            rt.getRoomRates().size(); // LAZY LOADING
+            if (roomTypeToQty.get(rt) >= numOfRoomsReq) {
+                availRoomTypes.add(rt);
+            }
+        }
+
+        System.out.println(availRoomTypes.toString());
+
         // exception if no rooms left for any type
         if (roomTypeToQty.isEmpty()) {
             throw new RoomNotFoundException("Insufficient rooms available for this time period at the moment!\n");
         }
 
-        // loop room types available, check the total amount for all the days
-        for (Map.Entry<RoomType, Integer> entry : roomTypeToQty.entrySet()) {
-            RoomType roomType = entry.getKey();
-            Integer qty = entry.getValue();
-
-            if (roomType.getEnabled() && qty >= numberOfRoomsInput) {
-                Calendar checkInCal = Calendar.getInstance();
-                checkInCal.setTime(checkInDateInput);
-                Calendar checkOutCal = Calendar.getInstance();
-                checkOutCal.setTime(checkOutDateInput);
-
-                double amount = 0;
-                System.out.println("avail room types: " + roomType);
-
-                while (checkInCal.before(checkOutCal)) {
-                    checkInCal.add(Calendar.DAY_OF_MONTH, 1);
-                    Date d = checkInCal.getTime();
-                    if (searchType.equals("Online")) {
-                        amount += onlineDayPrevailingRate(d, roomType);
-                    }
-                    if (searchType.equals("Walk-in")) {
-                        amount += walkInDayPrevailingRate(d, roomType);
-                    }
-                }
-                map.put(roomType, amount);
-            }
-
-        }
-
-        return map;
+        return availRoomTypes;
     }
 
     @Override
@@ -191,7 +176,6 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         double promotionRate = 0;
 
         for (RoomRate r : roomRates) {
-            System.out.println(r.getName());
 
             if (r.getEnabled()) {
 
@@ -200,13 +184,31 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
                 }
 
                 if (r.getValidityStartDate() != null || r.getValidityEndDate() != null) {
-                    boolean typeValid = r.getValidityStartDate().compareTo(date) <= 0 && r.getValidityEndDate().compareTo(date) >= 0;
-                    if (r.getRateType() == RateTypeEnum.PEAK && typeValid) {
-                        normalRate = r.getRatePerNight();
-                    }
 
-                    if (r.getRateType() == RateTypeEnum.PROMOTION && typeValid) {
-                        normalRate = r.getRatePerNight();
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                    String startDate = formatter.format(r.getValidityStartDate());
+                    String endDate = formatter.format(r.getValidityEndDate());
+                    String dayDate = formatter.format(date);
+                    System.out.println("startDate " + startDate);
+                    System.out.println("endDate " + endDate);
+                    System.out.println("dayDate " + dayDate);
+
+                    // 4 CONDIIIONS: 
+                    // DAY DATE => VALIDITYSTARTDATE OR DAY DATE == VALIDITY START DATE (DATE STRING)
+                    // DAY DATE <= VALIDITYENDDATE OR DAY DATE == VALIDITY END DATE (DATE STRING)
+                    boolean timeValid = r.getValidityStartDate().compareTo(date) <= 0 && r.getValidityEndDate().compareTo(date) >= 0;
+                    boolean dateValid = startDate.compareTo(dayDate) == 0 || endDate.compareTo(dayDate) == 0;
+                    System.out.println("timevalid " + timeValid);
+                    System.out.println("dateValid" + dateValid);
+
+                    if (timeValid && dateValid) {
+                        if (r.getRateType() == RateTypeEnum.PEAK) {
+                            normalRate = r.getRatePerNight();
+                        }
+
+                        if (r.getRateType() == RateTypeEnum.PROMOTION) {
+                            normalRate = r.getRatePerNight();
+                        }
                     }
 
                 }
@@ -232,7 +234,6 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         double publishedRate = 0;
 
         for (RoomRate r : roomRates) {
-            System.out.println(r.getName());
 
             if (r.getEnabled()) {
 

@@ -8,6 +8,7 @@ import entity.Reservation;
 import entity.RoomType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +82,10 @@ public class MainApp {
                     break;
 
                     case 3:
-                        searchHotelRoom();
+                        System.out.print("Number of Rooms: ");
+                        int numOfRooms = scanner.nextInt();
+                        scanner.nextLine();
+                        searchHotelRoom(numOfRooms);
                         break;
 
                     case 4:
@@ -153,15 +157,19 @@ public class MainApp {
                 System.out.println();
                 switch (response) {
                     case 1:
-                        reserveHotelRoom();
+                        System.out.print("Number of Rooms: ");
+                        int numOfRooms = scanner.nextInt();
+                        scanner.nextLine();
+                        reserveHotelRoom(numOfRooms);
                         break;
 
                     case 2:
                         System.out.println("Which reservation would you like to view?");
                         System.out.print("Enter reservation Id > ");
+                        scanner.nextLine();
                         Long reservationId = scanner.nextLong();
 
-                        viewReservationDetails(reservationId);
+                        viewReservationDetails(currentGuestEntity.getOccupantId(), reservationId);
                         break;
 
                     case 3:
@@ -179,17 +187,13 @@ public class MainApp {
     }
 
     // use case 3
-    private HashMap<RoomType, Double> searchHotelRoom() {
-        HashMap<RoomType, Double> map = new HashMap<>();
+    private HashMap<RoomType, Double> searchHotelRoom(int numOfRoomsInput) {
         Scanner scanner = new Scanner(System.in);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        HashMap<RoomType, Double> priceMapping = new HashMap<>();
 
         try {
-            int numOfRoomsInput;
             while (true) {
-                System.out.print("Number of Rooms: ");
-                numOfRoomsInput = scanner.nextInt();
-                scanner.nextLine();
                 System.out.print("Enter check in date (DD/MM/YYYY): ");
                 String checkInDateInput = scanner.nextLine();
                 checkInDate = formatter.parse(checkInDateInput);
@@ -197,8 +201,6 @@ public class MainApp {
                 String checkOutDateInput = scanner.nextLine();
                 checkOutDate = formatter.parse(checkOutDateInput);
                 System.out.println();
-
-                checkOutDate = formatter.parse(checkOutDateInput);
 
                 // ensure input valid 
                 if (checkInDate.before(checkOutDate)) {
@@ -208,8 +210,30 @@ public class MainApp {
                 }
             }
 
-            map = roomEntitySessionBeanRemote.searchRoom("Online", numOfRoomsInput, checkInDate, checkOutDate);
-            for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
+            List<RoomType> roomTypes = roomEntitySessionBeanRemote.searchRoom(numOfRoomsInput, checkInDate, checkOutDate);
+
+            // loop room types available, check the total amount for all the days
+            for (RoomType rt : roomTypes) {
+
+                if (rt.getEnabled()) {
+                    Calendar checkInCal = Calendar.getInstance();
+                    checkInCal.setTime(checkInDate);
+                    Calendar checkOutCal = Calendar.getInstance();
+                    checkOutCal.setTime(checkOutDate);
+
+                    double amount = 0;
+
+                    while (checkInCal.before(checkOutCal)) {
+                        Date d = checkInCal.getTime();
+                        amount += roomEntitySessionBeanRemote.onlineDayPrevailingRate(d, rt);
+                        checkInCal.add(Calendar.DAY_OF_MONTH, 1);
+                    }
+                    priceMapping.put(rt, amount);
+                }
+
+            }
+
+            for (Map.Entry<RoomType, Double> entry : priceMapping.entrySet()) {
                 System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
             }
 
@@ -217,20 +241,19 @@ public class MainApp {
 
         } catch (RoomNotFoundException ex) {
             System.out.println(ex.getMessage());
-
         } catch (ParseException ex) {
             System.out.println("Wrong Input Format!\n");
         }
 
-        return map;
+        return priceMapping;
 
     }
 
     // use case 4 (includes use case 3)
-    private void reserveHotelRoom() {
+    private void reserveHotelRoom(int numOfRoomsInput) {
         Scanner sc = new Scanner(System.in);
 
-        HashMap<RoomType, Double> priceMapping = searchHotelRoom();
+        HashMap<RoomType, Double> priceMapping = searchHotelRoom(numOfRoomsInput);
 
         if (!priceMapping.isEmpty()) {
             System.out.print("Do you want to reserve a room? (Y/N) > ");
@@ -240,37 +263,49 @@ public class MainApp {
                 Long roomTypeId = sc.nextLong();
                 sc.nextLine();
 
-                System.out.print("How many rooms would you like to book? > ");
-                int quantity = sc.nextInt();
-                sc.nextLine();
-
-                Reservation reservation = reservationEntitySessionBeanRemote.reserveRoom(roomTypeId, quantity, currentGuestEntity, priceMapping, checkInDate, checkOutDate);
+                Reservation reservation = reservationEntitySessionBeanRemote.reserveRoom(roomTypeId, numOfRoomsInput, currentGuestEntity, priceMapping, checkInDate, checkOutDate);
 
                 Date now = new Date();
-                if (now.equals(reservation.getCheckInDate())) {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                String nowStr = formatter.format(now);
+                String checkInDateStr = formatter.format(reservation.getCheckInDate());
+                String checkOutDateStr = formatter.format(reservation.getCheckOutDate());
+
+                if (nowStr.equals(checkInDateStr)) {
                     reservationEntitySessionBeanRemote.allocateRoomsForReservation(reservation);
                 }
 
-                System.out.println(reservation.getRoomType() + " has been reserved from " + checkInDate.toString() + " until " + checkOutDate.toString() + "!\n");
+                System.out.println(reservation.getRoomType().getName() + " has been reserved from " + checkInDateStr + " until " + checkOutDateStr + "!\n");
                 System.out.println("Would you like to reserve another room? (Y/N) > ");
                 input = sc.nextLine().trim();
+                sc.nextLine();
+
             }
         }
     }
 
     // use case 5
-    private void viewReservationDetails(Long reservationId) {
+    private void viewReservationDetails(Long occupantId, Long reservationId) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         try {
+            List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(occupantId);
             Reservation reservation = reservationEntitySessionBeanRemote.retrieveReservationByReservationId(reservationId);
-            System.out.println("Here are the details for your reservation with ID: " + reservationId);
-            System.out.printf("%15s%20s%20s%10s%20s\n", "Check In Date", "Check Out Date", "Room Type", "Amount", "Number of Rooms");
-            String checkInDate = formatter.format(reservation.getCheckInDate());
-            String checkOutDate = formatter.format(reservation.getCheckOutDate());
-            RoomType roomType = reservation.getRoomType();
 
-            System.out.printf("%15s%20s%20s%10s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
+            for (Reservation r : reservations) {
+                if (r.equals(reservation)) {
+                    System.out.println("Here are the details for your reservation with ID: " + reservationId);
+                    System.out.printf("%15s%20s%30s%15s%20s\n", "Check In Date", "Check Out Date", "Room Type", "Cost/Rm", "Number of Rooms");
+                    String checkInDate = formatter.format(reservation.getCheckInDate());
+                    String checkOutDate = formatter.format(reservation.getCheckOutDate());
+                    RoomType roomType = reservation.getRoomType();
+
+                    System.out.printf("%15s%20s%30s%15s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
+                } else {
+                    System.out.println("Invalid Reservation Id! You did not make this reservation! :( \n");
+                }
+            }
+
         } catch (ReservationNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
