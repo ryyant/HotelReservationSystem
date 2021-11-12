@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Occupant;
+import entity.Partner;
 import entity.Report;
 import entity.Reservation;
 import entity.Room;
@@ -53,6 +54,24 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         newReservation.setOccupant(occupant);
 
         occupant.getReservations().add(newReservation);
+
+        return newReservation;
+
+    }
+    
+    public Reservation reserveRoom(Long roomTypeId, int quantity, Partner partner, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate) {
+
+        partner = em.merge(partner);
+        RoomType roomType = em.find(RoomType.class, roomTypeId);
+
+        double amount = priceMapping.get(roomType);
+        Reservation newReservation = new Reservation(amount, quantity, checkInDate, checkOutDate);
+        em.persist(newReservation);
+
+        newReservation.setRoomType(roomType);
+        newReservation.setPartner(partner);
+
+        partner.getReservations().add(newReservation);
 
         return newReservation;
 
