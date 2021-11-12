@@ -5,7 +5,6 @@ import ejb.session.stateless.ReservationEntitySessionBeanRemote;
 import ejb.session.stateless.RoomEntitySessionBeanRemote;
 import entity.Guest;
 import entity.Reservation;
-import entity.Room;
 import entity.RoomType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -186,8 +185,11 @@ public class MainApp {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         try {
-
+            int numOfRoomsInput;
             while (true) {
+                System.out.print("Number of Rooms: ");
+                numOfRoomsInput = scanner.nextInt();
+                scanner.nextLine();
                 System.out.print("Enter check in date (DD/MM/YYYY): ");
                 String checkInDateInput = scanner.nextLine();
                 checkInDate = formatter.parse(checkInDateInput);
@@ -195,6 +197,8 @@ public class MainApp {
                 String checkOutDateInput = scanner.nextLine();
                 checkOutDate = formatter.parse(checkOutDateInput);
                 System.out.println();
+
+                checkOutDate = formatter.parse(checkOutDateInput);
 
                 // ensure input valid 
                 if (checkInDate.before(checkOutDate)) {
@@ -204,17 +208,15 @@ public class MainApp {
                 }
             }
 
-            try {
-                map = roomEntitySessionBeanRemote.searchRoom("Online", checkInDate, checkOutDate);
-                for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
-                    System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
-                }
-
-                System.out.println();
-
-            } catch (RoomNotFoundException ex) {
-                System.out.println(ex.getMessage());
+            map = roomEntitySessionBeanRemote.searchRoom("Online", numOfRoomsInput, checkInDate, checkOutDate);
+            for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
+                System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
             }
+
+            System.out.println();
+
+        } catch (RoomNotFoundException ex) {
+            System.out.println(ex.getMessage());
 
         } catch (ParseException ex) {
             System.out.println("Wrong Input Format!\n");
@@ -248,7 +250,7 @@ public class MainApp {
                 if (now.equals(reservation.getCheckInDate())) {
                     reservationEntitySessionBeanRemote.allocateRoomsForReservation(reservation);
                 }
-                
+
                 System.out.println(reservation.getRoomType() + " has been reserved from " + checkInDate.toString() + " until " + checkOutDate.toString() + "!\n");
                 System.out.println("Would you like to reserve another room? (Y/N) > ");
                 input = sc.nextLine().trim();

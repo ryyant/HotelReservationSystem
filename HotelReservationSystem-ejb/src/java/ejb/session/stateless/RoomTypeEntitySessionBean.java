@@ -12,6 +12,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import util.exception.DuplicateException;
 import util.exception.RoomTypeNotFoundException;
 
@@ -33,8 +34,7 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
             roomType.setRoomRates(roomRates);
             return roomType.getRoomTypeId();
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (PersistenceException ex) {
             throw new DuplicateException("Room type already created!\n");
         }
     }

@@ -66,7 +66,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
 
                         if (currentEmployeeEntity.getUserRole() == UserRoleEnum.SYSTEM_ADMIN) {
-                            systemAdministrationModule = new SystemAdministrationModule(currentEmployeeEntity, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote);
+                            systemAdministrationModule = new SystemAdministrationModule(currentEmployeeEntity, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote, reservationEntitySessionBeanRemote);
                             systemAdministrationModule.menuSystemAdministration();
                         }
 

@@ -1,9 +1,12 @@
 package hotelmanagementclient;
 
+import ejb.session.stateless.ReservationEntitySessionBeanRemote;
 import ejb.session.stateless.RoomEntitySessionBeanRemote;
 import ejb.session.stateless.RoomRateEntitySessionBeanRemote;
 import ejb.session.stateless.RoomTypeEntitySessionBeanRemote;
 import entity.Employee;
+import entity.Report;
+import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
@@ -18,6 +21,7 @@ import util.enumeration.RoomStatusEnum;
 import util.enumeration.UserRoleEnum;
 import util.exception.DuplicateException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.ReportNotFoundException;
 import util.exception.RoomNotFoundException;
 import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeNotFoundException;
@@ -28,14 +32,16 @@ public class HotelOperationModule {
     private RoomTypeEntitySessionBeanRemote roomTypeEntitySessionBeanRemote;
     private RoomRateEntitySessionBeanRemote roomRateEntitySessionBeanRemote;
     private RoomEntitySessionBeanRemote roomEntitySessionBeanRemote;
+    private ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote;
 
     public HotelOperationModule() {
     }
 
-    public HotelOperationModule(Employee currentEmployeeEntity, RoomTypeEntitySessionBeanRemote roomTypeEntitySessionBeanRemote, RoomRateEntitySessionBeanRemote roomRateEntitySessionBeanRemote, RoomEntitySessionBeanRemote roomEntitySessionBeanRemote) {
+    public HotelOperationModule(Employee currentEmployeeEntity, RoomTypeEntitySessionBeanRemote roomTypeEntitySessionBeanRemote, RoomRateEntitySessionBeanRemote roomRateEntitySessionBeanRemote, RoomEntitySessionBeanRemote roomEntitySessionBeanRemote, ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote) {
         this();
         this.currentEmployeeEntity = currentEmployeeEntity;
         this.roomTypeEntitySessionBeanRemote = roomTypeEntitySessionBeanRemote;
+        this.reservationEntitySessionBeanRemote = reservationEntitySessionBeanRemote;
     }
 
     public void menuHotelOperation() {
@@ -178,7 +184,7 @@ public class HotelOperationModule {
         RoomType roomType = new RoomType(name, description, size, bed, capacity, amenities);
 
         try {
-            System.out.println("Possible Room Types,");
+            System.out.println("Choose Next Room Types,");
             System.out.println("0: NO next higher room type");
             List<RoomType> options = roomTypeEntitySessionBeanRemote.viewAllRoomTypes();
             for (RoomType r : options) {
@@ -396,7 +402,7 @@ public class HotelOperationModule {
                     room.setEnabled(false);
                 }
             }
-            
+
             // MERGE HERE
             roomEntitySessionBeanRemote.updateRoom(room);
             System.out.println("Room succesfully updated!");
@@ -439,10 +445,20 @@ public class HotelOperationModule {
     // use case 14
     private void viewRoomAllocationExceptionReport() {
         Scanner sc = new Scanner(System.in);
-
         System.out.println("***** View Room Allocation Reports *****");
-    }
+        List<Reservation> reservations = reservationEntitySessionBeanRemote.getAllReservations();
+        for (Reservation r : reservations) {
+            List<Report> reports = r.getReports();
+            for (Report report : reports) {
+                System.out.println("Report: " + report.getReportId() + ", type: " + report.getType());
+            }
 
+        }
+        if (reservations.size() == 0) {
+            System.out.println("No Exception Reports found Currently!\n");
+        }
+    }
+    
     // use case 17
     private void createNewRoomRate() {
         Scanner sc = new Scanner(System.in);

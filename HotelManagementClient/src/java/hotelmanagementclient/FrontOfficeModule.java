@@ -104,8 +104,11 @@ public class FrontOfficeModule {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         try {
-
+            int numOfRoomsInput;
             while (true) {
+                System.out.print("Number of Rooms: ");
+                numOfRoomsInput = scanner.nextInt();
+                scanner.nextLine();
                 System.out.print("Enter check in date (DD/MM/YYYY): ");
                 String checkInDateInput = scanner.nextLine();
                 checkInDate = formatter.parse(checkInDateInput);
@@ -122,18 +125,14 @@ public class FrontOfficeModule {
                 }
             }
 
-            try {
-                map = roomEntitySessionBeanRemote.searchRoom("Walk-in", checkInDate, checkOutDate);
-                for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
-                    System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
-                }
-
-                System.out.println();
-
-            } catch (RoomNotFoundException ex) {
-                System.out.println(ex.getMessage());
+            map = roomEntitySessionBeanRemote.searchRoom("Walk-in", numOfRoomsInput, checkInDate, checkOutDate);
+            for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
+                System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
             }
 
+            System.out.println();
+        } catch (RoomNotFoundException ex) {
+            System.out.println(ex.getMessage());
         } catch (ParseException ex) {
             System.out.println("Wrong Input Format!");
         }

@@ -90,15 +90,20 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
     }
 
     @Override
-    public List<Report> getAllReports() throws ReportNotFoundException {
-        List<Report> reports = em.createQuery("SELECT r from Report r")
+    public List<Reservation> getAllReservations() {
+        
+        List<Reservation> reservations = em.createQuery("SELECT r from Reservation r")
                 .getResultList();
 
-        if (reports.isEmpty()) {
-            throw new ReportNotFoundException("There are currently no room allocation reports!");
+        for (Reservation r : reservations) {
+            r.getReports().size();
+            r.getOccupant();
+            r.getPartner();
+            r.getRoomType();
+            r.getRooms().size();
         }
-
-        return reports;
+       
+        return reservations;
     }
 
     // TIMER method to loop all reservations at 2am
