@@ -37,17 +37,13 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     @Override
     public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException {
         try {
-
             Room room = new Room(roomNumber);
-
+            em.persist(room);
             RoomType roomType = (RoomType) em.createQuery("SELECT r from RoomType r WHERE r.name = ?1")
                     .setParameter(1, roomTypeName)
                     .getSingleResult();
 
             room.setRoomType(roomType);
-            em.persist(room);
-            em.flush();
-
             return room.getRoomId();
 
         } catch (NoResultException e) {
@@ -80,8 +76,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
             Room room = (Room) em.createQuery("SELECT r from Room r WHERE r.roomNumber = ?1")
                     .setParameter(1, roomNumber)
                     .getSingleResult();
-            room.getRoomType();
-            room.getReservation();
+
             return room;
 
         } catch (NoResultException e) {
@@ -96,6 +91,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
 
     @Override
     public void deleteRoom(Room room) {
+
         Room managedRoom = em.merge(room);
 
         if (room.getReservation() != null) {
@@ -154,7 +150,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
                 Calendar checkOutCal = Calendar.getInstance();
                 checkOutCal.setTime(checkOutDateInput);
                 System.out.println("checkOutCal: " + checkOutCal.getTime());
-
+                
                 double amount = 0;
                 System.out.println("avail room types: " + roomType);
 
