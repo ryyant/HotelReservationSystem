@@ -36,7 +36,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     private EntityManager em;
 
     @Override
-    public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException {
+    public long createNewRoom(String roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException {
         try {
 
             Room room = new Room(roomNumber);
@@ -75,7 +75,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     }
 
     @Override
-    public Room getRoomByRoomNumber(int roomNumber) throws RoomNotFoundException {
+    public Room getRoomByRoomNumber(String roomNumber) throws RoomNotFoundException {
         try {
             Room room = (Room) em.createQuery("SELECT r from Room r WHERE r.roomNumber = ?1")
                     .setParameter(1, roomNumber)

@@ -25,9 +25,9 @@ public interface RoomEntitySessionBeanRemote {
 
     public void updateRoom(Room room);
 
-    public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
+    public long createNewRoom(String roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
 
-    public Room getRoomByRoomNumber(int roomNumber) throws RoomNotFoundException;
+    public Room getRoomByRoomNumber(String roomNumber) throws RoomNotFoundException;
 
     public void deleteRoom(Room room);
 

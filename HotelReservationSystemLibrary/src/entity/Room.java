@@ -30,7 +30,7 @@ public class Room implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
     @Column(nullable = false, length = 4, unique = true)
-    private Integer roomNumber;
+    private String roomNumber;
     @Column(nullable = false)
     @Enumerated(STRING)
     private RoomStatusEnum roomStatus;
@@ -49,7 +49,7 @@ public class Room implements Serializable {
         this.enabled = true;
     }
 
-    public Room(Integer roomNumber) {
+    public Room(String roomNumber) {
         this();
         this.roomNumber = roomNumber;
 
@@ -88,11 +88,11 @@ public class Room implements Serializable {
         return "entity.Room[ id=" + roomId + " ]";
     }
 
-    public Integer getRoomNumber() {
+    public String getRoomNumber() {
         return roomNumber;
     }
 
-    public void setRoomNumber(Integer roomNumber) {
+    public void setRoomNumber(String roomNumber) {
         this.roomNumber = roomNumber;
     }
 

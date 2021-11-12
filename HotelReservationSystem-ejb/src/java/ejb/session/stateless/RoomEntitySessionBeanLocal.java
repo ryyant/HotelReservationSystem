@@ -25,9 +25,9 @@ public interface RoomEntitySessionBeanLocal {
 
     public void updateRoom(Room room);
 
-    public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
+    public long createNewRoom(String roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
 
-    public Room getRoomByRoomNumber(int roomNumber) throws RoomNotFoundException;
+    public Room getRoomByRoomNumber(String roomNumber) throws RoomNotFoundException;
 
     public void deleteRoom(Room room);
 
@@ -36,5 +36,6 @@ public interface RoomEntitySessionBeanLocal {
     public double walkInDayPrevailingRate(Date date, RoomType roomType);
 
     public List<RoomType> searchRoom(int numOfRoomsReq, Date checkInDate, Date checkOutDate) throws RoomNotFoundException;
+
 
 }
