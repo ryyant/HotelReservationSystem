@@ -16,10 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import util.enumeration.RoomStatusEnum;
 import util.exception.ReportNotFoundException;
 import util.exception.ReservationNotFoundException;
+import util.exception.RoomNotFoundException;
 
 /**
  *
@@ -101,8 +103,23 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         Date now = new Date();
 
         // get all reservations checking in today
-        List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE checkInDate = ?1")
+        List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE r.checkInDate = ?1")
                 .setParameter(1, now)
+                .getResultList();
+
+        // LOOP ALL RESERVATIONS
+        for (Reservation r : reservations) {
+            allocateRoomsForReservation(r);
+        }
+    }
+
+    // MANUAL TRIGGER
+    @Override
+    public void allocateCurrentDayReservations(Date futureDate) {
+
+        // get all reservations checking in today
+        List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE r.checkInDate = ?1")
+                .setParameter(1, futureDate)
                 .getResultList();
 
         // LOOP ALL RESERVATIONS
@@ -115,9 +132,15 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
     @Override
     public void allocateRoomsForReservation(Reservation reservation) {
 
+        // manage the reservation
         reservation = em.merge(reservation);
         int requiredQuantity = reservation.getQuantity();
         List<Room> allocations = reservation.getRooms();
+
+        // check if already allocated previously for this day's reservation (same day check-in)
+        if (allocations.size() > 0) {
+            return;
+        }
 
         // get available rooms of reservation's room type
         List<Room> requiredRooms = em.createQuery("SELECT r from Room r WHERE r.roomType = ?1 AND r.enabled = ?2 AND r.roomStatus = ?3")
@@ -137,7 +160,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
                     .getResultList();
         }
 
-        // if enough required rooms available, allocate.
+        // if enough required rooms available, allocate sequentially.
         if (requiredRooms.size() >= requiredQuantity) {
             // allocate required rooms 
             for (int i = 0; i < requiredQuantity; i++) {
@@ -145,8 +168,8 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
                 allocations.add(room);
                 room.setReservation(reservation);
                 room.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
+                requiredQuantity--;
             }
-            return;
         }
 
         // if enough higher rooms available, allocate.
@@ -158,14 +181,37 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
                 higherRoom.setReservation(reservation);
                 higherRoom.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
                 Report report = new Report(1);
-                reservation.setReport(report);
+                reservation.getReports().add(report);
+                requiredQuantity--;
             }
-            return;
         }
 
         // if no more rooms and higher rooms, type 2 exception
-        Report report = new Report(2);
-        reservation.setReport(report);
+        if (requiredQuantity > 0) {
+            for (int i = 0; i < requiredQuantity; i++) {
+                Report report = new Report(2);
+                reservation.getReports().add(report);
+            }
+        }
 
     }
+
+    @Override
+    public void checkOut(int roomNumber) throws RoomNotFoundException {
+        try {
+            Room room = (Room) em.createQuery("SELECT r FROM Room r WHERE r.roomNumber = ?1")
+                    .setParameter(1, roomNumber)
+                    .getSingleResult();
+            room.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
+            room.setReservation(null);
+            Reservation reservation = room.getReservation();
+            reservation.setPartner(null);
+            reservation.setOccupant(null);
+            reservation.setReports(null);
+            em.remove(reservation);
+        } catch (NoResultException ex) {
+            throw new RoomNotFoundException("This room does not exist!");
+        }
+    }
+
 }
