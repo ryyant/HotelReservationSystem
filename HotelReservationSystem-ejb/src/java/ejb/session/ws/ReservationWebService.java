@@ -11,14 +11,25 @@ import ejb.session.stateless.RoomEntitySessionBeanLocal;
 import entity.Occupant;
 import entity.Partner;
 import entity.Reservation;
+import entity.Room;
+import entity.RoomRate;
 import entity.RoomType;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import util.enumeration.RoomStatusEnum;
 import util.exception.DuplicateException;
 import util.exception.PartnerNotFoundException;
 import util.exception.ReservationNotFoundException;
@@ -38,9 +49,11 @@ public class ReservationWebService {
     @EJB
     private RoomEntitySessionBeanLocal roomEntitySessionBeanLocal;
 
+    @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
+    private EntityManager em;
+
     @EJB
     private PartnerEntitySessionBeanLocal partnerEntitySessionBeanLocal;
-
 
     /**
      * This is a sample web service operation
@@ -59,10 +72,24 @@ public class ReservationWebService {
     public long retrieveUsernameByPartnerId(Long partnerId) throws PartnerNotFoundException {
         return 1;
     }*/
-    
     @WebMethod(operationName = "searchRoom")
     public List<RoomType> searchRoom(int numOfRoomsReq, Date checkInDate, Date checkOutDate) throws RoomNotFoundException {
-        return roomEntitySessionBeanLocal.searchRoom( numOfRoomsReq,  checkInDate,  checkOutDate);
+        List<Room> rooms = em.createQuery("SELECT r FROM Room r WHERE r.roomStatus = ?1 AND r.enabled = ?2")
+                .setParameter(1, RoomStatusEnum.AVAILABLE)
+                .setParameter(2, true)
+                .getResultList();
+        for (Room room : rooms) {
+            em.detach(room);
+            //room.getReservation().setRooms(null);
+            room.setReservation(null);
+
+            for (RoomRate roomRate : room.getRoomType().getRoomRates()) {
+                em.detach(roomRate);
+                roomRate.setRoomType(null);
+            }
+        }
+
+        return roomEntitySessionBeanLocal.searchRoom(numOfRoomsReq, checkInDate, checkOutDate);
     }
 
     @WebMethod(operationName = "reserveRoom")
@@ -84,4 +111,28 @@ public class ReservationWebService {
     public List<Reservation> retrieveReservationsByPartnerId(Long partnerId) throws ReservationNotFoundException {
         return reservationEntitySessionBeanLocal.retrieveReservationsByPartnerId(partnerId);
     }
+
+    @WebMethod(operationName = "")
+    public double onlineDayPrevailingRate(Date date, RoomType roomType) throws DatatypeConfigurationException {
+        GregorianCalendar cal = new GregorianCalendar();
+        System.out.println(date);
+        cal.setTime(date);
+        XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED);
+
+        date = toDate(xmlDate);
+        
+        return roomEntitySessionBeanLocal.onlineDayPrevailingRate(date, roomType);
+    }
+
+    public void persist(Object object) {
+        em.persist(object);
+    }
+
+    public static Date toDate(XMLGregorianCalendar calendar) {
+        if (calendar == null) {
+            return null;
+        }
+        return calendar.toGregorianCalendar().getTime();
+    }
+
 }
