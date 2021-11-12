@@ -93,7 +93,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
             reservation.getReports().size();
             return reservation;
         } else {
-            throw new ReservationNotFoundException("Reservation with ID: " + reservationId + " does not exist!");
+            throw new ReservationNotFoundException("Reservation with ID: " + reservationId + " does not exist!\n");
         }
     }
 
@@ -110,7 +110,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
             }
             return reservations;
         } else {
-            throw new ReservationNotFoundException("You do not have any reservations made!");
+            throw new ReservationNotFoundException("You do not have any reservations made!\n");
         }
     }
     
@@ -127,7 +127,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
             }
             return reservations;
         } else {
-            throw new ReservationNotFoundException("You do not have any reservations made!");
+            throw new ReservationNotFoundException("You do not have any reservations made!\n");
         }
     }
 

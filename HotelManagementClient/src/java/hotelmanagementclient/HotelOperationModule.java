@@ -348,10 +348,9 @@ public class HotelOperationModule {
         System.out.print("Enter Room Type Name: ");
         String roomTypeName = sc.nextLine();
         System.out.print("Enter Room Number: ");
-        int roomNum = sc.nextInt();
+        String roomNum = sc.nextLine();
 
         try {
-            System.out.println("1");
             roomEntitySessionBeanRemote.createNewRoom(roomNum, roomTypeName);
 
             System.out.println("Room Type Successfully Created!\n");
@@ -365,7 +364,7 @@ public class HotelOperationModule {
         Scanner sc = new Scanner(System.in);
         System.out.println("***** Update Room *****");
         System.out.print("Enter Room Number to update: ");
-        int roomNumber = sc.nextInt();
+        String roomNumber = sc.nextLine();
         System.out.println();
 
         try {
@@ -378,13 +377,12 @@ public class HotelOperationModule {
             sc.nextLine();
 
             if (action == 1) {
-                System.out.print("New Room Number (4 DIGITS) >");
-                int newRoomNumber = sc.nextInt();
-                sc.nextLine();
+                System.out.print("New Room Number (4 DIGITS) > ");
+                String newRoomNumber = sc.nextLine();
                 room.setRoomNumber(newRoomNumber);
             }
             if (action == 2) {
-                System.out.print("New Room Status (1. AVAIL, 2. NOT AVAIL) >");
+                System.out.print("New Room Status (1. AVAIL, 2. NOT AVAIL) > ");
                 int response = sc.nextInt();
                 sc.nextLine();
                 if (response == 1) {
@@ -407,7 +405,7 @@ public class HotelOperationModule {
 
             // MERGE HERE
             roomEntitySessionBeanRemote.updateRoom(room);
-            System.out.println("Room succesfully updated!");
+            System.out.println("Room succesfully updated!\n");
         } catch (RoomNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
@@ -419,8 +417,7 @@ public class HotelOperationModule {
 
         System.out.println("***** Delete Room *****");
         System.out.print("Enter Room Number to delete: ");
-        int roomNumber = sc.nextInt();
-        System.out.println();
+        String roomNumber = sc.nextLine();
         try {
             Room room = roomEntitySessionBeanRemote.getRoomByRoomNumber(roomNumber);
             roomEntitySessionBeanRemote.deleteRoom(room);

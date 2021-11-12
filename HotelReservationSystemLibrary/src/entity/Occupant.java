@@ -35,7 +35,7 @@ public class Occupant implements Serializable {
     private String email;
     @Column(nullable = false, length = 10)
     private String phoneNumber;
-    @Column(nullable = false, length = 32)
+    @Column(nullable = false, length = 32, unique = true)
     private String passportNumber;
 
     @OneToMany(mappedBy = "occupant")
