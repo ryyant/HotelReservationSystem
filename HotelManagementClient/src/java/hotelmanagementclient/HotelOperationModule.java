@@ -41,6 +41,7 @@ public class HotelOperationModule {
         this();
         this.currentEmployeeEntity = currentEmployeeEntity;
         this.roomTypeEntitySessionBeanRemote = roomTypeEntitySessionBeanRemote;
+        this.roomRateEntitySessionBeanRemote = roomRateEntitySessionBeanRemote;
         this.reservationEntitySessionBeanRemote = reservationEntitySessionBeanRemote;
     }
 
