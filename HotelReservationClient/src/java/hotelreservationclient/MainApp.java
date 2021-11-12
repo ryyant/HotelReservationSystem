@@ -242,6 +242,11 @@ public class MainApp {
 
                 Reservation reservation = reservationEntitySessionBeanRemote.reserveRoom(roomTypeId, quantity, currentGuestEntity, priceMapping, checkInDate, checkOutDate);
 
+                Date now = new Date();
+                if (now.equals(reservation.getCheckInDate())) {
+                    reservationEntitySessionBeanRemote.allocateRoomsForReservation(reservation);
+                }
+                
                 System.out.println(reservation.getRoomType() + " has been reserved from " + checkInDate.toString() + " until " + checkOutDate.toString() + "!\n");
                 System.out.println("Would you like to reserve another room? (Y/N) > ");
                 input = sc.nextLine().trim();
