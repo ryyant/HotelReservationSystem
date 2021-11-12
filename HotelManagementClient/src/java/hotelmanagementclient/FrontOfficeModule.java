@@ -16,6 +16,7 @@ import entity.Room;
 import entity.RoomType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -108,9 +109,9 @@ public class FrontOfficeModule {
 
     // use case 23
     private HashMap<RoomType, Double> searchHotelRoom(int numOfRoomsInput) {
-        HashMap<RoomType, Double> map = new HashMap<>();
         Scanner scanner = new Scanner(System.in);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        HashMap<RoomType, Double> priceMapping = new HashMap<>();
 
         try {
             while (true) {
@@ -126,23 +127,46 @@ public class FrontOfficeModule {
                 if (checkInDate.before(checkOutDate)) {
                     break;
                 } else {
-                    System.out.println("Check in date must be before check out date!");
+                    System.out.println("Check in date must be before check out date!\n");
                 }
             }
 
-            map = roomEntitySessionBeanRemote.searchRoom("Walk-in", numOfRoomsInput, checkInDate, checkOutDate);
-            for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
+            List<RoomType> roomTypes = roomEntitySessionBeanRemote.searchRoom(numOfRoomsInput, checkInDate, checkOutDate);
+
+            // loop room types available, check the total amount for all the days
+            for (RoomType rt : roomTypes) {
+                System.out.println(rt);
+                if (rt.getEnabled()) {
+                    Calendar checkInCal = Calendar.getInstance();
+                    checkInCal.setTime(checkInDate);
+                    Calendar checkOutCal = Calendar.getInstance();
+                    checkOutCal.setTime(checkOutDate);
+
+                    double amount = 0;
+
+                    while (checkInCal.before(checkOutCal)) {
+                        Date d = checkInCal.getTime();
+                        amount += roomEntitySessionBeanRemote.walkInDayPrevailingRate(d, rt);
+                        checkInCal.add(Calendar.DAY_OF_MONTH, 1);
+                    }
+                    priceMapping.put(rt, amount);
+                }
+
+            }
+
+            for (Map.Entry<RoomType, Double> entry : priceMapping.entrySet()) {
                 System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
             }
 
             System.out.println();
+            
         } catch (RoomNotFoundException ex) {
             System.out.println(ex.getMessage());
         } catch (ParseException ex) {
             System.out.println("Wrong Input Format!\n");
         }
 
-        return map;
+        return priceMapping;
 
     }
 
@@ -156,13 +180,13 @@ public class FrontOfficeModule {
             System.out.print("Do you want to reserve a room? (Y/N) > ");
             String input = sc.nextLine().trim();
 
-            System.out.print("Occupant Name: ");
+            System.out.print("Key Occupant Name: ");
             String name = sc.nextLine().trim();
-            System.out.print("Occupant Email: ");
+            System.out.print("Key Occupant Email: ");
             String email = sc.nextLine().trim();
-            System.out.print("Occupant Phone Number: ");
+            System.out.print("Key Occupant Phone Number: ");
             String phoneNumber = sc.nextLine().trim();
-            System.out.println("Occupant Passport Number: ");
+            System.out.println("Key Occupant Passport Number: ");
             String passportNumber = sc.nextLine().trim();
 
             try {
@@ -189,14 +213,15 @@ public class FrontOfficeModule {
 
                 Date now = new Date();
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-                String checkInDateStr = formatter.format(now);
-                String checkOutDateStr = formatter.format(reservation.getCheckInDate());
+                String nowStr = formatter.format(now);
+                String checkInDateStr = formatter.format(reservation.getCheckInDate());
+                String checkOutDateStr = formatter.format(reservation.getCheckOutDate());
 
-                if (checkInDateStr.equals(checkOutDateStr)) {
+                if (nowStr.equals(checkInDateStr)) {
                     reservationEntitySessionBeanRemote.allocateRoomsForReservation(reservation);
                 }
 
-                System.out.println(reservation.getRoomType().getName() + " has been reserved from " + checkInDateStr + " until " + checkOutDateStr + "!");
+                System.out.println(reservation.getRoomType().getName() + " has been reserved from " + checkInDateStr + " until " + checkOutDateStr + "!\n");
                 System.out.print("Would you like to reserve another room? (Y/N) > ");
                 input = sc.nextLine().trim();
             }
