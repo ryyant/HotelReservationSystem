@@ -123,7 +123,7 @@ public class RoomType implements Serializable {
         return roomSize;
     }
 
-    public void setRomSize(String roomSize) {
+    public void setRoomSize(String roomSize) {
         this.roomSize = roomSize;
     }
 
