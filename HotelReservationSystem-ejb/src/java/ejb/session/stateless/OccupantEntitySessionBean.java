@@ -46,8 +46,8 @@ public class OccupantEntitySessionBean implements OccupantEntitySessionBeanRemot
             
             if (size != 0) {
                 for (Reservation reservation : occupant.getReservations()) {
-                    reservation.getRooms().size();
-                    reservation.getReport();
+                    reservation.getRooms().size(); 
+                    reservation.getReports().size();
                     reservation.getRoomType();
                 }
             }

@@ -76,9 +76,9 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
 
     @Override
     public void deleteRoomType(RoomType roomType) {
-        
+
         RoomType managedRoomType = em.merge(roomType);
-        
+
         List<RoomType> roomTypesUsedInRoom = em.createQuery("SELECT r from Room r WHERE r.roomType.roomTypeId = ?1")
                 .setParameter(1, roomType.getRoomTypeId())
                 .getResultList();
@@ -86,7 +86,7 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
         List<RoomType> roomTypesInReservation = em.createQuery("SELECT r from Reservation r WHERE r.roomType.roomTypeId = ?1")
                 .setParameter(1, roomType.getRoomTypeId())
                 .getResultList();
-        
+
         List<RoomRate> roomTypesInRoomRate = em.createQuery("SELECT r from RoomRate r WHERE r.roomType.roomTypeId = ?1")
                 .setParameter(1, roomType.getRoomTypeId())
                 .getResultList();
@@ -97,6 +97,19 @@ public class RoomTypeEntitySessionBean implements RoomTypeEntitySessionBeanRemot
             managedRoomType.setEnabled(false);
         } else {
             em.remove(managedRoomType);
+        }
+    }
+
+    @Override
+    public void setNextHigherRoomType(Long roomTypeId, Long nextHigherRoomTypeId) throws RoomTypeNotFoundException {
+
+        try {
+            RoomType nextHigherRoomTypeEntity = em.find(RoomType.class, nextHigherRoomTypeId);
+            RoomType roomType = em.find(RoomType.class, roomTypeId);
+            roomType.setNextHigherRoomType(nextHigherRoomTypeEntity);
+
+        } catch (NoResultException ex) {
+            throw new RoomTypeNotFoundException("Room Type not found!");
         }
     }
 }

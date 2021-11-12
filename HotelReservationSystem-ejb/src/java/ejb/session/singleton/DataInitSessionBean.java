@@ -37,7 +37,7 @@ public class DataInitSessionBean {
     public void postConstruct() {
 
         if (em.find(Employee.class, 1l) == null) {
-            em.persist(new Employee("admin", "password", UserRoleEnum.SYSTEM_ADMIN));
+            em.persist(new Employee("sysadmin", "password", UserRoleEnum.SYSTEM_ADMIN));
             em.persist(new Employee("opmanager", "password", UserRoleEnum.OPERATION_MANAGER));
             em.persist(new Employee("salesmanager", "password", UserRoleEnum.SALES_MANAGER));
             em.persist(new Employee("guestrelo", "password", UserRoleEnum.RELATION_OFFICER));

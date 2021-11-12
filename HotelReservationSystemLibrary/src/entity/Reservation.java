@@ -59,8 +59,8 @@ public class Reservation implements Serializable {
     @JoinColumn(nullable = false)
     private RoomType roomType;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Report report;
+    @OneToMany
+    private List<Report> reports;
 
     public Reservation(Double amount, int quantity, Date checkInDate, Date checkOutDate) {
         this();
@@ -167,12 +167,12 @@ public class Reservation implements Serializable {
         this.rooms = rooms;
     }
 
-    public Report getReport() {
-        return report;
+    public List<Report> getReports() {
+        return reports;
     }
 
-    public void setReport(Report report) {
-        this.report = report;
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
     }
 
     public int getQuantity() {

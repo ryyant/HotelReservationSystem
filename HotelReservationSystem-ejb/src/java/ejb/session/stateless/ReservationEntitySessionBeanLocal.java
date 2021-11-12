@@ -15,6 +15,7 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.ReportNotFoundException;
 import util.exception.ReservationNotFoundException;
+import util.exception.RoomNotFoundException;
 
 /**
  *
@@ -34,5 +35,9 @@ public interface ReservationEntitySessionBeanLocal {
     public void allocateCurrentDayReservations();
 
     public void allocateRoomsForReservation(Reservation r);
+
+    public void allocateCurrentDayReservations(Date futureDate);
+
+    public void checkOut(int roomNumber) throws RoomNotFoundException;
 
 }

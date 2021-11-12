@@ -87,6 +87,7 @@ public class FrontOfficeModule {
                         checkOutGuest();
                         break;
                     case 5:
+                        System.out.println("Logged out!\n");
                         break OUTER;
                     default:
                         System.out.println("Invalid option, please try again!\n");
@@ -185,10 +186,16 @@ public class FrontOfficeModule {
 
                 Reservation reservation = reservationEntitySessionBeanRemote.reserveRoom(roomTypeId, quantity, occupantEntity, priceMapping, checkInDate, checkOutDate);
 
+                Date now = new Date();
+                if (now.equals(reservation.getCheckInDate())) {
+                    reservationEntitySessionBeanRemote.allocateRoomsForReservation(reservation);
+                }
+
                 System.out.println(reservation.getRoomType() + " has been reserved from " + checkInDate.toString() + " until " + checkOutDate.toString() + "!");
                 System.out.print("Would you like to reserve another room? (Y/N) > ");
                 input = sc.nextLine().trim();
             }
+
         }
     }
 
@@ -224,23 +231,20 @@ public class FrontOfficeModule {
 
             Reservation curReservation = reservationEntitySessionBeanRemote.retrieveReservationByReservationId(reservationIdInput);
 
-            // to check if same day check in, no allocation was done!
-            if (curReservation.getRooms().isEmpty()) {
-                reservationEntitySessionBeanRemote.allocateRoomsForReservation(curReservation);
-            }
-            
             // PRINT EXCEPTIONS MESSAGE IF PRESENT.
-            Report report = curReservation.getReport();
-            if (report == null) {
-                if (report.getType() == 1) {
-                    System.out.println("Type 1 Room Allocation Exception! There are no available rooms available for reserved room type,"
-                            + " allocated upgrade.");
-                } else {
-                    System.out.println("Type 2 Room Allocation Exception! There are no available rooms available for reserved room type,"
-                            + " and no upgrade is available.");
+            List<Report> reports = curReservation.getReports();
+            if (!reports.isEmpty()) {
+                for (Report report : reports) {
+                    if (report.getType() == 1) {
+                        System.out.println("Type 1 Room Allocation Exception! There are no available rooms available for reserved room type,"
+                                + " allocated upgrade.");
+                    } else {
+                        System.out.println("Type 2 Room Allocation Exception! There are no available rooms available for reserved room type,"
+                                + " and no upgrade is available.");
+                    }
                 }
             }
-            
+
             //displaying room info
             List<Room> roomsAllocated = curReservation.getRooms();
 
@@ -264,9 +268,17 @@ public class FrontOfficeModule {
     // use case 26
     public void checkOutGuest() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Please key in Room Number >");
+        System.out.print("Please key in Room Number > ");
         Integer roomNumber = sc.nextInt();
         sc.nextLine();
+
+        try {
+            reservationEntitySessionBeanRemote.checkOut(roomNumber);
+            System.out.println("Successfully checked out of room " + roomNumber + "!");
+
+        } catch (RoomNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
 
     }
 

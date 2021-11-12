@@ -74,6 +74,7 @@ public class SystemAdministrationModule {
                         viewAllPartners();
                         break;
                     case 5:
+                        System.out.println("Logged out!\n");
                         break OUTER;
                     default:
                         System.out.println("Invalid option, please try again!\n");

@@ -9,7 +9,7 @@ import entity.RoomRate;
 import entity.RoomType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -99,9 +99,10 @@ public class HotelOperationModule {
                         viewAllRooms();
                         break;
                     case 8:
-                        //viewRoomAllocationExceptionReport();
+                        viewRoomAllocationExceptionReport();
                         break;
                     case 9:
+                        System.out.println("Logged out!\n");
                         break OUTER;
                     default:
                         System.out.println("Invalid option, please try again!\n");
@@ -169,22 +170,29 @@ public class HotelOperationModule {
         System.out.print("Enter Capacity: ");
         int capacity = sc.nextInt();
         sc.nextLine();
-        List<String> amenities = new ArrayList<>();
         System.out.println("Enter Amenities: ");
-        System.out.println("(Press Enter after keying each amenity)");
-        System.out.println("(Press C to confirm)");
         String a = sc.nextLine().trim();
-        while (!a.toUpperCase().equals("C")) {
-            amenities.add(a);
-            a = sc.nextLine().trim();
-        }
-        // System.out.println("Choose Room Rates: ");
+        List<String> amenities = Arrays.asList(a.split(", "));
 
+        // System.out.println("Choose Room Rates: ");
         RoomType roomType = new RoomType(name, description, size, bed, capacity, amenities);
+
         try {
-            roomTypeEntitySessionBeanRemote.createNewRoomType(roomType, null);
+            System.out.println("Possible Room Types,");
+            System.out.println("0: NO next higher room type");
+            List<RoomType> options = roomTypeEntitySessionBeanRemote.viewAllRoomTypes();
+            for (RoomType r : options) {
+                System.out.println(r.getRoomTypeId() + ": " + r.getName());
+            }
+            System.out.print("Enter Next Higher Room Type:");
+            Long higherRoom = sc.nextLong();
+
+            Long roomTypeId = roomTypeEntitySessionBeanRemote.createNewRoomType(roomType, null);
+            if (higherRoom > 0) {
+                roomTypeEntitySessionBeanRemote.setNextHigherRoomType(roomTypeId, higherRoom);
+            }
             System.out.println("Room Type Successfully Created!\n");
-        } catch (DuplicateException e) {
+        } catch (DuplicateException | RoomTypeNotFoundException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -205,6 +213,9 @@ public class HotelOperationModule {
             System.out.println("No of Bed: " + roomType.getBed());
             System.out.println("Room Capacity: " + roomType.getCapacity());
             System.out.println("Amenities: ");
+            if (roomType.getAmenities().isEmpty()) {
+                System.out.println("No amenities currently.");
+            }
             for (String a : roomType.getAmenities()) {
                 System.out.println(a);
             }
@@ -244,13 +255,58 @@ public class HotelOperationModule {
         System.out.println("7. Remove a Amenity");
         System.out.println("8. Enable Room");
 
-        int updateChoice = 0;
-        updateChoice = sc.nextInt();
-        System.out.println();
+        int action = sc.nextInt();
+        sc.nextLine();
 
-        if (updateChoice >= 1 && updateChoice <= 6) {
-
+        if (action == 1) {
+            System.out.print("New Room Type Name >");
+            String newName = sc.nextLine();
+            roomType.setName(newName);
         }
+        if (action == 2) {
+            System.out.print("Description >");
+            String desc = sc.nextLine();
+            roomType.setDescription(desc);
+        }
+        if (action == 3) {
+            System.out.print("New Size >");
+            String size = sc.nextLine();
+            roomType.setRoomSize(size);
+        }
+        if (action == 4) {
+            System.out.print("New Bed >");
+            String bed = sc.nextLine();
+            roomType.setBed(bed);
+        }
+        if (action == 5) {
+            System.out.print("New Capacity >");
+            int cap = sc.nextInt();
+            sc.nextLine();
+            roomType.setCapacity(cap);
+        }
+        if (action == 6) {
+            System.out.print("Add Amenity >");
+            String a = sc.nextLine();
+            roomType.getAmenities().add(a);
+        }
+        if (action == 7) {
+            System.out.print("Remove Amenity >");
+            String a = sc.nextLine();
+            roomType.getAmenities().remove(a);
+        }
+        if (action == 8) {
+            System.out.print("Enable Room Type? (Y/N) >");
+            String enableInput = sc.nextLine().trim();
+            if (enableInput.equalsIgnoreCase("Y")) {
+                roomType.setEnabled(true);
+            }
+            if (enableInput.equalsIgnoreCase("N")) {
+                roomType.setEnabled(false);
+            }
+        }
+
+        roomTypeEntitySessionBeanRemote.updateRoomType(roomType);
+        System.out.println("Room Type succesfully updated!");
 
     }
 
@@ -340,7 +396,8 @@ public class HotelOperationModule {
                     room.setEnabled(false);
                 }
             }
-
+            
+            // MERGE HERE
             roomEntitySessionBeanRemote.updateRoom(room);
             System.out.println("Room succesfully updated!");
         } catch (RoomNotFoundException ex) {
@@ -359,7 +416,7 @@ public class HotelOperationModule {
         try {
             Room room = roomEntitySessionBeanRemote.getRoomByRoomNumber(roomNumber);
             roomEntitySessionBeanRemote.deleteRoom(room);
-            System.out.println("Room succesfully deleted!");
+            System.out.println("Room succesfully deleted!\n");
         } catch (RoomNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
@@ -377,6 +434,13 @@ public class HotelOperationModule {
         } catch (RoomNotFoundException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    // use case 14
+    private void viewRoomAllocationExceptionReport() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("***** View Room Allocation Reports *****");
     }
 
     // use case 17
