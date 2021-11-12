@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -103,12 +104,16 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     }
 
     @Override
-    public HashMap<RoomType, Double> searchRoom(String searchType, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
+    public HashMap<RoomType, Double> searchRoom(String searchType, int numberOfRoomsInput, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
 
-        // RoomType Name : Amount for period stated.
+        // RoomType : Amount for period stated.
         HashMap<RoomType, Double> map = new HashMap<>();
+
+        // Room Type : Count Required for search.
+        HashMap<RoomType, Integer> roomTypeToQty = new HashMap<>();
+
+        // list of available rooms
         List<Room> availRooms = new ArrayList<>();
-        List<RoomType> availRoomTypes = new ArrayList<>();
 
         // get all ROOM that are enabled and available
         List<Room> rooms = em.createQuery("SELECT r FROM Room r WHERE r.roomStatus = ?1 AND r.enabled = ?2")
@@ -131,26 +136,30 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         // add all the distinct room types of these avail rooms
         for (Room r : availRooms) {
             RoomType roomType = r.getRoomType();
-            if (!availRoomTypes.contains(roomType)) {
-                availRoomTypes.add(roomType);
+            if (roomTypeToQty.containsKey(roomType)) {
+                int qty = roomTypeToQty.get(roomType);
+                roomTypeToQty.put(roomType, qty + 1);
+            } else {
+                roomTypeToQty.put(roomType, 1);
             }
         }
 
-        if (availRooms.isEmpty()) {
-            throw new RoomNotFoundException("No rooms available for this time period at the moment!\n");
+        // exception if no rooms left for any type
+        if (roomTypeToQty.isEmpty()) {
+            throw new RoomNotFoundException("Insufficient rooms available for this time period at the moment!\n");
         }
 
         // loop room types available, check the total amount for all the days
-        for (RoomType roomType : availRoomTypes) {
-            if (roomType.getEnabled()) {
+        for (Map.Entry<RoomType, Integer> entry : roomTypeToQty.entrySet()) {
+            RoomType roomType = entry.getKey();
+            Integer qty = entry.getValue();
+
+            if (roomType.getEnabled() && qty >= numberOfRoomsInput) {
                 Calendar checkInCal = Calendar.getInstance();
                 checkInCal.setTime(checkInDateInput);
-                System.out.println("checkInCal: " + checkInCal.getTime());
-
                 Calendar checkOutCal = Calendar.getInstance();
                 checkOutCal.setTime(checkOutDateInput);
-                System.out.println("checkOutCal: " + checkOutCal.getTime());
-                
+
                 double amount = 0;
                 System.out.println("avail room types: " + roomType);
 

@@ -6,14 +6,12 @@
 package ejb.session.stateless;
 
 import entity.Occupant;
-import entity.Report;
 import entity.Reservation;
 import entity.RoomType;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
-import util.exception.ReportNotFoundException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomNotFoundException;
 
@@ -30,7 +28,7 @@ public interface ReservationEntitySessionBeanLocal {
 
     public Reservation reserveRoom(Long roomTypeId, int quantity, Occupant occupant, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate);
 
-    public List<Report> getAllReports() throws ReportNotFoundException;
+    public List<Reservation> getAllReservations();
 
     public void allocateCurrentDayReservations();
 

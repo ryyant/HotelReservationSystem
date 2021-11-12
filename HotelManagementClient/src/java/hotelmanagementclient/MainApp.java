@@ -66,12 +66,12 @@ public class MainApp {
                         System.out.println("Login successful!\n");
 
                         if (currentEmployeeEntity.getUserRole() == UserRoleEnum.SYSTEM_ADMIN) {
-                            systemAdministrationModule = new SystemAdministrationModule(currentEmployeeEntity, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote);
+                            systemAdministrationModule = new SystemAdministrationModule(currentEmployeeEntity, employeeEntitySessionBeanRemote, partnerEntitySessionBeanRemote, reservationEntitySessionBeanRemote);
                             systemAdministrationModule.menuSystemAdministration();
                         }
 
                         if (currentEmployeeEntity.getUserRole() == UserRoleEnum.OPERATION_MANAGER || currentEmployeeEntity.getUserRole() == UserRoleEnum.SALES_MANAGER) {
-                            hotelOperationModule = new HotelOperationModule(currentEmployeeEntity, roomTypeEntitySessionBeanRemote, roomRateEntitySessionBeanRemote, roomEntitySessionBeanRemote);
+                            hotelOperationModule = new HotelOperationModule(currentEmployeeEntity, roomTypeEntitySessionBeanRemote, roomRateEntitySessionBeanRemote, roomEntitySessionBeanRemote, reservationEntitySessionBeanRemote);
                             hotelOperationModule.menuHotelOperation();
                         }
 

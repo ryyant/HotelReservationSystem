@@ -7,8 +7,12 @@ package hotelmanagementclient;
 
 import ejb.session.stateless.EmployeeEntitySessionBeanRemote;
 import ejb.session.stateless.PartnerEntitySessionBeanRemote;
+import ejb.session.stateless.ReservationEntitySessionBeanRemote;
 import entity.Employee;
 import entity.Partner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.UserRoleEnum;
@@ -24,16 +28,18 @@ public class SystemAdministrationModule {
 
     private EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote;
     private PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote;
+    private ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote;
 
     private Employee currentEmployeeEntity;
 
     public SystemAdministrationModule() {
     }
 
-    public SystemAdministrationModule(Employee currentEmployeeEntity, EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote) {
+    public SystemAdministrationModule(Employee currentEmployeeEntity, EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote, ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote) {
         this();
         this.partnerEntitySessionBeanRemote = partnerEntitySessionBeanRemote;
         this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
+        this.reservationEntitySessionBeanRemote = reservationEntitySessionBeanRemote;
         this.currentEmployeeEntity = currentEmployeeEntity;
     }
 
@@ -51,10 +57,12 @@ public class SystemAdministrationModule {
             System.out.println("3: Create New Partner");
             System.out.println("4: View All Partners");
             System.out.println("-----------------------");
-            System.out.println("5: Logout\n");
+            System.out.println("5: Allocate Rooms Manually");
+            System.out.println("-----------------------");
+            System.out.println("6: Logout\n");
             int response = 0;
 
-            while (response < 1 || response > 4) {
+            while (response < 1 || response > 6) {
                 System.out.print("> ");
 
                 response = scanner.nextInt();
@@ -74,6 +82,9 @@ public class SystemAdministrationModule {
                         viewAllPartners();
                         break;
                     case 5:
+                        allocateRoomsManually();
+                        break;
+                    case 6:
                         System.out.println("Logged out!\n");
                         break OUTER;
                     default:
@@ -183,5 +194,23 @@ public class SystemAdministrationModule {
             System.out.println(e.getMessage());
         }
     }
-    
+
+    // secret function 
+    private void allocateRoomsManually() {
+        Scanner sc = new Scanner(System.in);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        System.out.println("***** Allocate Rooms *****");
+        try {
+            System.out.print("Enter Date: ");
+            String dateString = sc.nextLine();
+            Date futureDate = formatter.parse(dateString);
+            reservationEntitySessionBeanRemote.allocateCurrentDayReservations(futureDate);
+            System.out.println("Rooms allocated successfully!\n");
+        } catch (ParseException e) {
+            System.out.println("Invalid Input Format!\n");
+        }
+
+    }
+
 }

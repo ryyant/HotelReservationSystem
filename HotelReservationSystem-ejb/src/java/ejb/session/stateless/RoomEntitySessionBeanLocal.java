@@ -36,6 +36,6 @@ public interface RoomEntitySessionBeanLocal {
 
     public double walkInDayPrevailingRate(Date date, RoomType roomType);
 
-    public HashMap<RoomType, Double> searchRoom(String searchType, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
+    public HashMap<RoomType, Double> searchRoom(String searchType, int numberOfRoomsInput, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
 
 }
