@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Occupant;
 import javax.ejb.Local;
+import util.exception.DuplicateException;
 import util.exception.OccupantNotFoundException;
 
 /**
@@ -15,6 +16,9 @@ import util.exception.OccupantNotFoundException;
  */
 @Local
 public interface OccupantEntitySessionBeanLocal {
-    public Occupant retrieveOccupantByNameAndPassport(String name, String passportNum) throws OccupantNotFoundException;
+    
+    public Occupant retrieveOccupantByPassport(String passportNum) throws OccupantNotFoundException;
+
+    public Occupant occupantRegister(Occupant walkInGuest) throws DuplicateException;
 
 }

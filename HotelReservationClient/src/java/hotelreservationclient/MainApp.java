@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.exception.DuplicateException;
 import util.exception.GuestNotFoundException;
 import util.exception.ReservationNotFoundException;
@@ -61,7 +59,7 @@ public class MainApp {
                 switch (response) {
                     case 1:
                         
-                        try {
+                    try {
                         guestLogin();
                         System.out.println("Login successful!\n");
                         guestLoginPage();
@@ -73,7 +71,7 @@ public class MainApp {
 
                     case 2:
                          
-                        try {
+                    try {
                         guestRegister();
                         System.out.println("Guest registration successful!\n");
                     } catch (DuplicateException ex) {
@@ -201,12 +199,12 @@ public class MainApp {
                 if (checkInDate.before(checkOutDate)) {
                     break;
                 } else {
-                    System.out.println("Check in date must be before check out date!");
+                    System.out.println("Check in date must be before check out date!\n");
                 }
             }
 
             try {
-                map = roomEntitySessionBeanRemote.searchRoom(checkInDate, checkOutDate);
+                map = roomEntitySessionBeanRemote.searchRoom("Online", checkInDate, checkOutDate);
                 for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
                     System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
                 }
@@ -218,7 +216,7 @@ public class MainApp {
             }
 
         } catch (ParseException ex) {
-            System.out.println("Wrong Input Format!");
+            System.out.println("Wrong Input Format!\n");
         }
 
         return map;
@@ -244,7 +242,7 @@ public class MainApp {
 
                 Reservation reservation = reservationEntitySessionBeanRemote.reserveRoom(roomTypeId, quantity, currentGuestEntity, priceMapping, checkInDate, checkOutDate);
 
-                System.out.println(reservation.getRoomType() + " has been reserved from " + checkInDate.toString() + " until " + checkOutDate.toString() + "!");
+                System.out.println(reservation.getRoomType() + " has been reserved from " + checkInDate.toString() + " until " + checkOutDate.toString() + "!\n");
                 System.out.println("Would you like to reserve another room? (Y/N) > ");
                 input = sc.nextLine().trim();
             }
@@ -254,7 +252,6 @@ public class MainApp {
     // use case 5
     private void viewReservationDetails(Long reservationId) {
         try {
-            List<Reservation> reservations = currentGuestEntity.getReservations();
             Reservation reservation = reservationEntitySessionBeanRemote.retrieveReservationByReservationId(reservationId);
 
         } catch (ReservationNotFoundException ex) {
@@ -267,18 +264,23 @@ public class MainApp {
     private void viewAllReservations() {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
-        List<Reservation> reservations = currentGuestEntity.getReservations();
+        try {
+            List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(currentGuestEntity.getOccupantId());
+            System.out.println("--------------------------YOUR RESERVATIONS--------------------------");
+            System.out.printf("%18s%18s%10s%10s%20s%n\n", "Check In Date", "Check Out Date", "Room Type", "Amount", "Number of Rooms");
+            for (Reservation reservation : reservations) {
+                String checkInDate = formatter.format(reservation.getCheckInDate());
+                String checkOutDate = formatter.format(reservation.getCheckOutDate());
 
-        System.out.println("--------------------------YOUR RESERVATIONS--------------------------");
-        System.out.printf("%18s%18s%10s%10s%20s%n\n", "Check In Date", "Check Out Date", "Room Type", "Amount", "Number of Rooms");
-        for (Reservation reservation : reservations) {
-            String checkInDate = formatter.format(reservation.getCheckInDate());
-            String checkOutDate = formatter.format(reservation.getCheckOutDate());
+                RoomType roomType = reservation.getRoomType();
+                System.out.printf("%15s%20s%20s%10s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
 
-            RoomType roomType = reservation.getRoomType();
-            System.out.printf("%15s%20s%20s%10s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
+            }
 
+        } catch (ReservationNotFoundException ex) {
+            System.out.println(ex.getMessage());
         }
+
     }
 
 }

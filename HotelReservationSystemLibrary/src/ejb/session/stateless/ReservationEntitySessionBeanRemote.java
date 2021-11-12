@@ -5,12 +5,15 @@
  */
 package ejb.session.stateless;
 
-import entity.Guest;
+import entity.Occupant;
+import entity.Report;
 import entity.Reservation;
 import entity.RoomType;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import javax.ejb.Remote;
+import util.exception.ReportNotFoundException;
 import util.exception.ReservationNotFoundException;
 
 /**
@@ -20,8 +23,16 @@ import util.exception.ReservationNotFoundException;
 @Remote
 public interface ReservationEntitySessionBeanRemote {
 
-    public Reservation reserveRoom(Long roomTypeId, int quantity, Guest currentGuest, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate);
+    public List<Reservation> retrieveReservationsByOccupantId(Long occupantId) throws ReservationNotFoundException;
 
     public Reservation retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
+
+    public Reservation reserveRoom(Long roomTypeId, int quantity, Occupant occupant, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate);
+
+    public List<Report> getAllReports() throws ReportNotFoundException;
+
+    public void allocateCurrentDayReservations();
+
+    public void allocateRoomsForReservation(Reservation r);
 
 }

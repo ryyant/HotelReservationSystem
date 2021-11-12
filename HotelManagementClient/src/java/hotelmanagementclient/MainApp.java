@@ -32,7 +32,7 @@ public class MainApp {
     }
 
     public MainApp(EmployeeEntitySessionBeanRemote employeeEntitySessionBeanRemote, PartnerEntitySessionBeanRemote partnerEntitySessionBeanRemote, RoomTypeEntitySessionBeanRemote roomTypeEntitySessionBeanRemote, RoomRateEntitySessionBeanRemote roomRateEntitySessionBeanRemote
-            , RoomEntitySessionBeanRemote roomEntitySessionBeanRemote, OccupantEntitySessionBeanRemote occupantEntitySessionBeanRemot, ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote) {
+            , RoomEntitySessionBeanRemote roomEntitySessionBeanRemote, OccupantEntitySessionBeanRemote occupantEntitySessionBeanRemote, ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote) {
         this.employeeEntitySessionBeanRemote = employeeEntitySessionBeanRemote;
         this.partnerEntitySessionBeanRemote = partnerEntitySessionBeanRemote;
         this.roomTypeEntitySessionBeanRemote = roomTypeEntitySessionBeanRemote;
@@ -76,7 +76,7 @@ public class MainApp {
                         }
 
                         if (currentEmployeeEntity.getUserRole() == UserRoleEnum.RELATION_OFFICER) {
-                            frontOfficeModule = new FrontOfficeModule(currentEmployeeEntity, occupantEntitySessionBeanRemote, reservationEntitySessionBeanRemote);
+                            frontOfficeModule = new FrontOfficeModule(currentEmployeeEntity, occupantEntitySessionBeanRemote, reservationEntitySessionBeanRemote, roomEntitySessionBeanRemote);
                             frontOfficeModule.menuFrontOffice();
                         }
 

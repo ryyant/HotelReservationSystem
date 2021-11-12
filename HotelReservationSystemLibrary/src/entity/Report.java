@@ -6,14 +6,11 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 /**
  *
@@ -29,11 +26,14 @@ public class Report implements Serializable {
     // can only be 1 or 2
     @Column(nullable = false)
     private int type;
-    @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date reportDate;
 
-    
+    public Report(int type) {
+        this.type = type;
+    }
+
+    public Report() {
+    }
+
     public Long getReportId() {
         return reportId;
     }
@@ -73,14 +73,6 @@ public class Report implements Serializable {
 
     public void setType(int type) {
         this.type = type;
-    }
-
-    public Date getReportDate() {
-        return reportDate;
-    }
-
-    public void setReportDate(Date reportDate) {
-        this.reportDate = reportDate;
     }
 
 }

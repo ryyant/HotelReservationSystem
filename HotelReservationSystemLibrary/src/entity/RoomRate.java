@@ -47,13 +47,20 @@ public class RoomRate implements Serializable {
     @Column
     @Temporal(TemporalType.DATE)
     private Date validityEndDate;
-    
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false)
     private RoomType roomType;
 
     public RoomRate() {
         this.enabled = true;
+    }
+
+    public RoomRate(String name, RateTypeEnum rateType, Double ratePerNight) {
+        this();
+        this.name = name;
+        this.rateType = rateType;
+        this.ratePerNight = ratePerNight;
     }
 
     public RoomRate(String name, RateTypeEnum rateType, Double ratePerNight, Date validityStartDate, Date validityEndDate) {

@@ -27,8 +27,6 @@ public interface RoomEntitySessionBeanLocal {
     public void updateRoom(Room room);
 
     public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException;
-    
-    public void allocateRooms();
 
     public Room getRoomByRoomNumber(int roomNumber) throws RoomNotFoundException;
 
@@ -36,7 +34,8 @@ public interface RoomEntitySessionBeanLocal {
 
     public double onlineDayPrevailingRate(Date date, RoomType roomType);
 
-    public HashMap<RoomType, Double> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
+    public double walkInDayPrevailingRate(Date date, RoomType roomType);
 
+    public HashMap<RoomType, Double> searchRoom(String searchType, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException;
 
 }

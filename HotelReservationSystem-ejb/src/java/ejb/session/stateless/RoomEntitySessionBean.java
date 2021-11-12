@@ -9,9 +9,6 @@ import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import static java.time.temporal.TemporalQueries.localDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -106,14 +103,13 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     }
 
     @Override
-    public HashMap<RoomType, Double> searchRoom(Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
+    public HashMap<RoomType, Double> searchRoom(String searchType, Date checkInDateInput, Date checkOutDateInput) throws RoomNotFoundException {
 
         // RoomType Name : Amount for period stated.
         HashMap<RoomType, Double> map = new HashMap<>();
         List<Room> availRooms = new ArrayList<>();
         List<RoomType> availRoomTypes = new ArrayList<>();
-        
-        
+
         // get all ROOM that are enabled and available
         List<Room> rooms = em.createQuery("SELECT r FROM Room r WHERE r.roomStatus = ?1 AND r.enabled = ?2")
                 .setParameter(1, RoomStatusEnum.AVAILABLE)
@@ -139,61 +135,45 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
                 availRoomTypes.add(roomType);
             }
         }
-        
+
         if (availRooms.isEmpty()) {
-            throw new RoomNotFoundException("No rooms available for this time period at the moment!");
+            throw new RoomNotFoundException("No rooms available for this time period at the moment!\n");
         }
-
-        Calendar checkInCal = Calendar.getInstance();
-        checkInCal.setTime(checkInDateInput);
-        System.out.println("checkInCal1: " + checkInCal.getTime());
-
-        Calendar checkOutCal = Calendar.getInstance();
-        checkOutCal.setTime(checkOutDateInput);
-        System.out.println("checkOutCal1: " + checkOutCal.getTime());
 
         // loop room types available, check the total amount for all the days
         for (RoomType roomType : availRoomTypes) {
-            double amount = 0;
-            System.out.println("avail room types: " + roomType);
+            if (roomType.getEnabled()) {
+                Calendar checkInCal = Calendar.getInstance();
+                checkInCal.setTime(checkInDateInput);
+                System.out.println("checkInCal: " + checkInCal.getTime());
 
-            while (checkInCal.before(checkOutCal)) {
-                checkInCal.add(Calendar.DAY_OF_MONTH, 1);
-                Date d = checkInCal.getTime();
-                amount += onlineDayPrevailingRate(d, roomType);
+                Calendar checkOutCal = Calendar.getInstance();
+                checkOutCal.setTime(checkOutDateInput);
+                System.out.println("checkOutCal: " + checkOutCal.getTime());
+                
+                double amount = 0;
+                System.out.println("avail room types: " + roomType);
+
+                while (checkInCal.before(checkOutCal)) {
+                    checkInCal.add(Calendar.DAY_OF_MONTH, 1);
+                    Date d = checkInCal.getTime();
+                    if (searchType.equals("Online")) {
+                        amount += onlineDayPrevailingRate(d, roomType);
+                    }
+                    if (searchType.equals("Walk-in")) {
+                        amount += walkInDayPrevailingRate(d, roomType);
+                    }
+                }
+                map.put(roomType, amount);
             }
-            map.put(roomType, amount);
+
         }
 
         return map;
     }
 
     @Override
-    public void allocateRooms() {
-        Date now = new Date();
-
-        // get all reservations checking in today
-        List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE checkInDate = ?1")
-                .setParameter(1, now)
-                .getResultList();
-
-        for (Reservation r : reservations) {
-
-            /*
-            if (room.getRoomStatus().equals("AVAILABLE")) {
-                room.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
-            } else {
-                // automatically allocate upgrade logic here
-
-                //Report report = new Report(e);
-            }*/
-        }
-
-    }
-
-    @Override
-    public double onlineDayPrevailingRate(Date date, RoomType roomType
-    ) {
+    public double onlineDayPrevailingRate(Date date, RoomType roomType) {
 
         List<RoomRate> roomRates = roomType.getRoomRates();
 
@@ -232,6 +212,29 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         } else {
             return normalRate;
         }
+
+    }
+
+    @Override
+    public double walkInDayPrevailingRate(Date date, RoomType roomType) {
+
+        List<RoomRate> roomRates = roomType.getRoomRates();
+
+        double publishedRate = 0;
+
+        for (RoomRate r : roomRates) {
+            System.out.println(r.getName());
+
+            if (r.getEnabled()) {
+
+                if (r.getRateType() == RateTypeEnum.PUBLISHED) {
+                    publishedRate = r.getRatePerNight();
+                }
+            }
+
+        }
+
+        return publishedRate;
 
     }
 

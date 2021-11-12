@@ -5,22 +5,27 @@
  */
 package hotelmanagementclient;
 
-import ejb.session.stateless.GuestEntitySessionBeanRemote;
 import ejb.session.stateless.OccupantEntitySessionBeanRemote;
 import ejb.session.stateless.ReservationEntitySessionBeanRemote;
+import ejb.session.stateless.RoomEntitySessionBeanRemote;
 import entity.Employee;
 import entity.Occupant;
 import entity.Report;
 import entity.Reservation;
 import entity.Room;
+import entity.RoomType;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import util.enumeration.UserRoleEnum;
+import util.exception.DuplicateException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.OccupantNotFoundException;
 import util.exception.ReservationNotFoundException;
+import util.exception.RoomNotFoundException;
 
 /**
  *
@@ -29,16 +34,23 @@ import util.exception.ReservationNotFoundException;
 public class FrontOfficeModule {
 
     private Employee currentEmployeeEntity;
+    private Occupant occupantEntity;
+
     private OccupantEntitySessionBeanRemote occupantEntitySessionBeanRemote;
     private ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote;
+    private RoomEntitySessionBeanRemote roomEntitySessionBeanRemote;
+
+    private Date checkInDate;
+    private Date checkOutDate;
 
     public FrontOfficeModule() {
     }
 
-    public FrontOfficeModule(Employee currentEmployeeEntity, OccupantEntitySessionBeanRemote occupantEntitySessionBeanRemote, ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote) {
+    public FrontOfficeModule(Employee currentEmployeeEntity, OccupantEntitySessionBeanRemote occupantEntitySessionBeanRemote, ReservationEntitySessionBeanRemote reservationEntitySessionBeanRemote, RoomEntitySessionBeanRemote roomEntitySessionBeanRemote) {
         this.occupantEntitySessionBeanRemote = occupantEntitySessionBeanRemote;
+        this.roomEntitySessionBeanRemote = roomEntitySessionBeanRemote;
+        this.reservationEntitySessionBeanRemote = reservationEntitySessionBeanRemote;
         this.currentEmployeeEntity = currentEmployeeEntity;
-
     }
 
     public void menuFrontOffice() throws EmployeeNotFoundException {
@@ -63,8 +75,10 @@ public class FrontOfficeModule {
                 response = scanner.nextInt();
                 switch (response) {
                     case 1:
+                        searchHotelRoom();
                         break;
                     case 2:
+                        reserveHotelRoom();
                         break;
                     case 3:
                         checkInGuest();
@@ -82,50 +96,158 @@ public class FrontOfficeModule {
         }
     }
 
+    // use case 23
+    private HashMap<RoomType, Double> searchHotelRoom() {
+        HashMap<RoomType, Double> map = new HashMap<>();
+        Scanner scanner = new Scanner(System.in);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        try {
+
+            while (true) {
+                System.out.print("Enter check in date (DD/MM/YYYY): ");
+                String checkInDateInput = scanner.nextLine();
+                checkInDate = formatter.parse(checkInDateInput);
+                System.out.print("Enter check out date (DD/MM/YYYY): ");
+                String checkOutDateInput = scanner.nextLine();
+                checkOutDate = formatter.parse(checkOutDateInput);
+                System.out.println();
+
+                // ensure input valid 
+                if (checkInDate.before(checkOutDate)) {
+                    break;
+                } else {
+                    System.out.println("Check in date must be before check out date!");
+                }
+            }
+
+            try {
+                map = roomEntitySessionBeanRemote.searchRoom("Walk-in", checkInDate, checkOutDate);
+                for (Map.Entry<RoomType, Double> entry : map.entrySet()) {
+                    System.out.println("Room Id: " + entry.getKey().getRoomTypeId() + ", Room Type: " + entry.getKey().getName() + ", Amount: " + entry.getValue());
+                }
+
+                System.out.println();
+
+            } catch (RoomNotFoundException ex) {
+                System.out.println(ex.getMessage());
+            }
+
+        } catch (ParseException ex) {
+            System.out.println("Wrong Input Format!");
+        }
+
+        return map;
+
+    }
+
+    // use case 24 (includes use case 23)
+    private void reserveHotelRoom() {
+        Scanner sc = new Scanner(System.in);
+
+        HashMap<RoomType, Double> priceMapping = searchHotelRoom();
+
+        if (!priceMapping.isEmpty()) {
+            System.out.print("Do you want to reserve a room? (Y/N) > ");
+            String input = sc.nextLine().trim();
+
+            System.out.print("Occupant Name: ");
+            String name = sc.nextLine().trim();
+            System.out.print("Occupant Email: ");
+            String email = sc.nextLine().trim();
+            System.out.print("Occupant Phone Number: ");
+            String phoneNumber = sc.nextLine().trim();
+            System.out.println("Occupant Passport Number: ");
+            String passportNumber = sc.nextLine().trim();
+
+            try {
+                Occupant walkInGuest = new Occupant(name, email, phoneNumber, passportNumber);
+                occupantEntity = occupantEntitySessionBeanRemote.occupantRegister(walkInGuest);
+            } catch (DuplicateException ex) {
+                try {
+                    System.out.println(ex.getMessage());
+                    System.out.println("Creating Occupant Record...");
+                    occupantEntity = occupantEntitySessionBeanRemote.retrieveOccupantByPassport(passportNumber);
+                    System.out.println("Occupant Record Created!");
+                } catch (OccupantNotFoundException e) {
+                    System.out.println(ex.getMessage());
+                }
+
+            }
+
+            while (input.equalsIgnoreCase("Y")) {
+                System.out.print("Enter Id of the room that you would like to reserve! > ");
+                Long roomTypeId = sc.nextLong();
+                sc.nextLine();
+                System.out.print("How many do you want? > ");
+                int quantity = sc.nextInt();
+                sc.nextLine();
+
+                Reservation reservation = reservationEntitySessionBeanRemote.reserveRoom(roomTypeId, quantity, occupantEntity, priceMapping, checkInDate, checkOutDate);
+
+                System.out.println(reservation.getRoomType() + " has been reserved from " + checkInDate.toString() + " until " + checkOutDate.toString() + "!");
+                System.out.print("Would you like to reserve another room? (Y/N) > ");
+                input = sc.nextLine().trim();
+            }
+        }
+    }
+
+    // use case 25
     public void checkInGuest() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("Please key in Occupant Name >");
-        String occupantName = sc.nextLine();
-        System.out.println("Please key in Occupant Passport Number >");
+        System.out.print("Occupant Passport Number > ");
         String passportNum = sc.nextLine();
 
         try {
-            Occupant occupant = occupantEntitySessionBeanRemote.retrieveOccupantByNameAndPassport(occupantName, passportNum);
+            Occupant occupant = occupantEntitySessionBeanRemote.retrieveOccupantByPassport(passportNum);
 
             List<Reservation> reservations = occupant.getReservations();
 
-            if (reservations.size() == 0) {
+            if (reservations.isEmpty()) {
                 System.out.println("NO RESERVATIONS MADE UNDER THIS OCCUPANT!");
-                System.out.println("-----returning to front office menu--------");
+                System.out.println("returning to front office view...\n");
                 return;
             }
 
             for (Reservation reservation : reservations) {
-                System.out.println("DISPLAYING EXISINTG RESERVATIONS MADE BY " + occupant.getName() + " :");
+                System.out.println("RESERVATIONS MADE BY " + occupant.getName() + ":");
                 System.out.printf("%8s%20s%20s%15s\n", "Reservation ID", "Check In Date", "Check Out Date", "Room Type");
-                System.out.printf("%8s%20s%20s%15s\n", reservation.getReservationId(), reservation.getCheckInDate(), reservation.getCheckOutDate(), reservation.getRoomType());
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                String checkInDate = formatter.format(reservation.getCheckInDate());
+                String checkOutDate = formatter.format(reservation.getCheckOutDate());
+                System.out.printf("%8s%20s%20s%15s\n", reservation.getReservationId(), checkInDate, checkOutDate, reservation.getRoomType());
             }
 
-            System.out.println("Which reservation would you like to perform check in for? >");
+            System.out.println("Which reservation would you like to perform check in for? > ");
             Long reservationIdInput = sc.nextLong();
+            sc.nextLine();
 
-            Reservation currentReservation = reservationEntitySessionBeanRemote.retrieveReservationByReservationId(reservationIdInput);
+            Reservation curReservation = reservationEntitySessionBeanRemote.retrieveReservationByReservationId(reservationIdInput);
 
-            Report exceptionReport = currentReservation.getReport();
-            if (exceptionReport == null) {
-
-                // Exception was found, handle the exception accordingly    
-            } else {
-
+            // to check if same day check in, no allocation was done!
+            if (curReservation.getRooms().isEmpty()) {
+                reservationEntitySessionBeanRemote.allocateRoomsForReservation(curReservation);
             }
-
+            
+            // PRINT EXCEPTIONS MESSAGE IF PRESENT.
+            Report report = curReservation.getReport();
+            if (report == null) {
+                if (report.getType() == 1) {
+                    System.out.println("Type 1 Room Allocation Exception! There are no available rooms available for reserved room type,"
+                            + " allocated upgrade.");
+                } else {
+                    System.out.println("Type 2 Room Allocation Exception! There are no available rooms available for reserved room type,"
+                            + " and no upgrade is available.");
+                }
+            }
+            
             //displaying room info
-            List<Room> roomsAllocated = currentReservation.getRooms();
+            List<Room> roomsAllocated = curReservation.getRooms();
 
             int count = 1;
             for (Room room : roomsAllocated) {
 
-                System.out.println("Here are the details for reservation " + count + " :");
+                System.out.println("Room Allocation " + count + " :");
                 System.out.println("Room Number: " + room.getRoomNumber());
                 System.out.println("Room Size: " + room.getRoomType().getRoomSize());
                 System.out.println("Room Status: " + room.getRoomStatus());
@@ -139,16 +261,13 @@ public class FrontOfficeModule {
 
     }
 
+    // use case 26
     public void checkOutGuest() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("Please key in Room Number >");
-        Integer occupantName = sc.nextInt();
-        
-        //occupantEntitySessionBeanRemote.retrieveOccupantByNameAndPassport(name, passportNum);
-        
-        
-        
-        
+        System.out.print("Please key in Room Number >");
+        Integer roomNumber = sc.nextInt();
+        sc.nextLine();
+
     }
 
 }

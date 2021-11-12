@@ -30,15 +30,15 @@ public class RoomType implements Serializable {
     private Long roomTypeId;
     @Column(nullable = false, length = 32, unique = true)
     private String name;
-    @Column(nullable = false)
+    @Column
     private String description;
-    @Column(nullable = false, length = 2)
+    @Column(length = 2)
     private String roomSize;
-    @Column(nullable = false, length = 2)
+    @Column(length = 2)
     private String bed;
-    @Column(nullable = false)
+    @Column
     private Integer capacity;
-    @Column(nullable = false)
+    @Column
     private List<String> amenities;
     @Column(nullable = false)
     private Boolean enabled;
@@ -53,7 +53,13 @@ public class RoomType implements Serializable {
         this.roomRates = new ArrayList<>();
         this.enabled = true;
     }
-
+    
+    public RoomType(String name) {
+        this();
+        this.name = name;
+    }
+    
+    
     public RoomType(String name, String description, String roomSize, String bed, Integer capacity, List<String> amenities) {
         this();
         this.name = name;

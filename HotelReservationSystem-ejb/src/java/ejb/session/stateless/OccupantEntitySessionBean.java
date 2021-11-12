@@ -7,12 +7,12 @@ package ejb.session.stateless;
 
 import entity.Occupant;
 import entity.Reservation;
-import entity.Room;
-import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.exception.DuplicateException;
 import util.exception.OccupantNotFoundException;
 
 /**
@@ -25,31 +25,37 @@ public class OccupantEntitySessionBean implements OccupantEntitySessionBeanRemot
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
-    public Occupant retrieveOccupantByNameAndPassport(String name, String passportNum) throws OccupantNotFoundException {
+    public Occupant occupantRegister(Occupant walkInGuest) throws DuplicateException {
+        try {
+            em.persist(walkInGuest);
+            em.flush();
+            return walkInGuest;
+        } catch (PersistenceException e) {
+            throw new DuplicateException("Occupant exists!");
+        }
+    }
+
+
+    public Occupant retrieveOccupantByPassport(String passportNum) throws OccupantNotFoundException {
 
         try {
-            Query query = em.createQuery("SELECT o FROM Occupant WHERE o.name := name AND o.passportNumber := passportNumber ");
-            query.setParameter("name", name).setParameter("passportNumber", passportNum);
+            Query query = em.createQuery("SELECT o FROM Occupant WHERE o.passportNumber := passportNumber ");
+            query.setParameter("passportNumber", passportNum);
             Occupant occupant = (Occupant) query.getSingleResult();
             int size = occupant.getReservations().size();
+            
             if (size != 0) {
-
                 for (Reservation reservation : occupant.getReservations()) {
                     reservation.getRooms().size();
                     reservation.getReport();
                     reservation.getRoomType();
-                    
-                    List<Room> rooms = reservation.getRooms();
-                    for (Room room : rooms) {
-                        room.getRoomType();
-                    }
                 }
             }
 
             return occupant;
 
         } catch (Exception ex) {
-            throw new OccupantNotFoundException("Occupant with name " + name + " and passport number " + passportNum + " cannot be found!");
+            throw new OccupantNotFoundException("Occupant cannot be found!");
         }
 
     }
