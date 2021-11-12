@@ -71,7 +71,7 @@ public class MainApp {
                         }
 
                         if (currentEmployeeEntity.getUserRole() == UserRoleEnum.OPERATION_MANAGER || currentEmployeeEntity.getUserRole() == UserRoleEnum.SALES_MANAGER) {
-                            hotelOperationModule = new HotelOperationModule(currentEmployeeEntity, roomTypeEntitySessionBeanRemote, roomRateEntitySessionBeanRemote, roomEntitySessionBeanRemote);
+                            hotelOperationModule = new HotelOperationModule(currentEmployeeEntity, roomTypeEntitySessionBeanRemote, roomRateEntitySessionBeanRemote, roomEntitySessionBeanRemote, reservationEntitySessionBeanRemote);
                             hotelOperationModule.menuHotelOperation();
                         }
 
