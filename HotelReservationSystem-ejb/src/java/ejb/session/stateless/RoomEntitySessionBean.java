@@ -19,6 +19,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import util.enumeration.RateTypeEnum;
 import util.enumeration.RoomStatusEnum;
 import util.exception.DuplicateException;
@@ -38,20 +39,23 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
     @Override
     public long createNewRoom(int roomNumber, String roomTypeName) throws RoomTypeNotFoundException, DuplicateException {
         try {
+
             Room room = new Room(roomNumber);
-            em.persist(room);
+
             RoomType roomType = (RoomType) em.createQuery("SELECT r from RoomType r WHERE r.name = ?1")
                     .setParameter(1, roomTypeName)
                     .getSingleResult();
 
             room.setRoomType(roomType);
+            em.persist(room);
+            em.flush();
+            
             return room.getRoomId();
 
         } catch (NoResultException e) {
             throw new RoomTypeNotFoundException("Room Type does not exist!");
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (PersistenceException e) {
             throw new DuplicateException("Room already created!\n");
         }
 
@@ -77,7 +81,8 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
             Room room = (Room) em.createQuery("SELECT r from Room r WHERE r.roomNumber = ?1")
                     .setParameter(1, roomNumber)
                     .getSingleResult();
-
+            room.getRoomType();
+            room.getReservation();
             return room;
 
         } catch (NoResultException e) {
@@ -161,7 +166,6 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
                 checkOutCal.setTime(checkOutDateInput);
 
                 double amount = 0;
-                System.out.println("avail room types: " + roomType);
 
                 while (checkInCal.before(checkOutCal)) {
                     checkInCal.add(Calendar.DAY_OF_MONTH, 1);
@@ -191,8 +195,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         double promotionRate = 0;
 
         for (RoomRate r : roomRates) {
-            System.out.println(r.getName());
-
+            
             if (r.getEnabled()) {
 
                 if (r.getRateType() == RateTypeEnum.NORMAL) {
@@ -232,7 +235,6 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         double publishedRate = 0;
 
         for (RoomRate r : roomRates) {
-            System.out.println(r.getName());
 
             if (r.getEnabled()) {
 
