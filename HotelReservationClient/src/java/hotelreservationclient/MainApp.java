@@ -5,6 +5,7 @@ import ejb.session.stateless.ReservationEntitySessionBeanRemote;
 import ejb.session.stateless.RoomEntitySessionBeanRemote;
 import entity.Guest;
 import entity.Reservation;
+import entity.Room;
 import entity.RoomType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -236,7 +237,9 @@ public class MainApp {
                 System.out.print("Enter Id of the room that you would like to reserve! > ");
                 Long roomTypeId = sc.nextLong();
                 sc.nextLine();
-                System.out.print("How many do you want? > ");
+                
+                
+                System.out.print("How many rooms would you like to book? > ");
                 int quantity = sc.nextInt();
                 sc.nextLine();
 
@@ -267,7 +270,7 @@ public class MainApp {
         try {
             List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(currentGuestEntity.getOccupantId());
             System.out.println("--------------------------YOUR RESERVATIONS--------------------------");
-            System.out.printf("%18s%18s%10s%10s%20s%n\n", "Check In Date", "Check Out Date", "Room Type", "Amount", "Number of Rooms");
+            System.out.printf("%15s%20s%20s%10s%20s\n", "Check In Date", "Check Out Date", "Room Type", "Amount", "Number of Rooms");
             for (Reservation reservation : reservations) {
                 String checkInDate = formatter.format(reservation.getCheckInDate());
                 String checkOutDate = formatter.format(reservation.getCheckOutDate());
