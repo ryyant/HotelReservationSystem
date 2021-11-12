@@ -35,25 +35,23 @@ public class OccupantEntitySessionBean implements OccupantEntitySessionBeanRemot
         }
     }
 
-
     public Occupant retrieveOccupantByPassport(String passportNum) throws OccupantNotFoundException {
 
         try {
-            Query query = em.createQuery("SELECT o FROM Occupant WHERE o.passportNumber := passportNumber ");
-            query.setParameter("passportNumber", passportNum);
+            Query query = em.createQuery("SELECT o FROM Occupant o WHERE o.passportNumber = ?1 ");
+            query.setParameter(1, passportNum);
             Occupant occupant = (Occupant) query.getSingleResult();
             int size = occupant.getReservations().size();
-            
+
             if (size != 0) {
                 for (Reservation reservation : occupant.getReservations()) {
-                    reservation.getRooms().size(); 
+                    reservation.getRooms().size();
                     reservation.getReports().size();
                     reservation.getRoomType();
                 }
             }
 
             return occupant;
-
         } catch (Exception ex) {
             throw new OccupantNotFoundException("Occupant cannot be found!");
         }

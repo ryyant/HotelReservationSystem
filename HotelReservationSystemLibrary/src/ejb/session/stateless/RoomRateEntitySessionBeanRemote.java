@@ -10,6 +10,7 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.DuplicateException;
 import util.exception.RoomRateNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -18,7 +19,7 @@ import util.exception.RoomRateNotFoundException;
 @Remote
 public interface RoomRateEntitySessionBeanRemote {
 
-    public long createNewRoomRate(RoomRate roomRate) throws DuplicateException;
+   public long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws DuplicateException, RoomTypeNotFoundException;
 
     public RoomRate viewRoomRateDetails(String roomRateName) throws RoomRateNotFoundException;
 

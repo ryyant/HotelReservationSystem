@@ -7,7 +7,9 @@ package ejb.session.stateless;
 
 import entity.RoomRate;
 import entity.RoomType;
+import static java.lang.System.out;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -15,6 +17,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import util.exception.DuplicateException;
 import util.exception.RoomRateNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -23,16 +26,27 @@ import util.exception.RoomRateNotFoundException;
 @Stateless
 public class RoomRateEntitySessionBean implements RoomRateEntitySessionBeanRemote, RoomRateEntitySessionBeanLocal {
 
+    @EJB(name = "RoomTypeEntitySessionBeanLocal")
+    private RoomTypeEntitySessionBeanLocal roomTypeEntitySessionBeanLocal;
+
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
     @Override
-    public long createNewRoomRate(RoomRate roomRate) throws DuplicateException {
+    public long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws DuplicateException, RoomTypeNotFoundException {
         try {
+            RoomType roomType = (RoomType) em.createQuery("SELECT rt FROM RoomType rt WHERE rt.name = ?1")
+                    .setParameter(1, roomTypeName)
+                    .getSingleResult();
             em.persist(roomRate);
+            roomRate.setRoomType(roomType);
+            roomType.getRoomRates().add(roomRate);
+
             em.flush();
             return roomRate.getRoomRateId();
 
+        } catch (NoResultException e) {
+            throw new RoomTypeNotFoundException("Room Type does not exist!");
         } catch (PersistenceException e) {
             throw new DuplicateException("Room rate already created!\n");
         }
@@ -78,7 +92,7 @@ public class RoomRateEntitySessionBean implements RoomRateEntitySessionBeanRemot
 
         List<RoomType> roomTypes = em.createQuery("SELECT r from RoomType r")
                 .getResultList();
-        
+
         boolean used = false;
         for (RoomType roomType : roomTypes) {
             if (roomType.getRoomRates().contains(roomRate)) {
@@ -91,6 +105,6 @@ public class RoomRateEntitySessionBean implements RoomRateEntitySessionBeanRemot
         } else {
             em.remove(roomRate);
         }
-        
+
     }
 }

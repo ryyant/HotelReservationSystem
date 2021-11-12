@@ -6,10 +6,12 @@
 package ejb.session.stateless;
 
 import entity.RoomRate;
+import entity.RoomType;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.DuplicateException;
 import util.exception.RoomRateNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -18,7 +20,7 @@ import util.exception.RoomRateNotFoundException;
 @Local
 public interface RoomRateEntitySessionBeanLocal {
 
-    public long createNewRoomRate(RoomRate roomRate) throws DuplicateException;
+    public long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws DuplicateException, RoomTypeNotFoundException;
 
     public RoomRate viewRoomRateDetails(String roomRateName) throws RoomRateNotFoundException;
 
