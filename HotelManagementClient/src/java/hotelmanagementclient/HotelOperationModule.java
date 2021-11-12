@@ -36,8 +36,6 @@ public class HotelOperationModule {
         this();
         this.currentEmployeeEntity = currentEmployeeEntity;
         this.roomTypeEntitySessionBeanRemote = roomTypeEntitySessionBeanRemote;
-        this.roomRateEntitySessionBeanRemote = roomRateEntitySessionBeanRemote;
-        this.roomEntitySessionBeanRemote = roomEntitySessionBeanRemote;
     }
 
     public void menuHotelOperation() {
@@ -47,7 +45,7 @@ public class HotelOperationModule {
         }
 
         if (currentEmployeeEntity.getUserRole() == UserRoleEnum.SALES_MANAGER) {
-            salesManagerView();
+            operationManagerView();
         }
 
     }
@@ -114,7 +112,7 @@ public class HotelOperationModule {
         }
     }
 
-    public void salesManagerView() {
+    public void salesManagerView() throws EmployeeNotFoundException {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Hi, " + currentEmployeeEntity.getUsername() + "!\n");
@@ -213,7 +211,7 @@ public class HotelOperationModule {
             System.out.println("Description: " + roomType.getDescription());
             System.out.println("Room Size: " + roomType.getRoomSize());
             System.out.println("No of Bed: " + roomType.getBed());
-            System.out.println("Room Capacity (key in an integer only!): " + roomType.getCapacity());
+            System.out.println("Room Capacity: " + roomType.getCapacity());
             System.out.println("Amenities: ");
             if (roomType.getAmenities().isEmpty()) {
                 System.out.println("No amenities currently.");
@@ -339,10 +337,12 @@ public class HotelOperationModule {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("***** Create New Room *****");
-        System.out.print("Enter Room Type Name: ");
-        String roomTypeName = sc.nextLine();
         System.out.print("Enter Room Number: ");
         int roomNum = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Enter Room Type Name: ");
+        String roomTypeName = sc.nextLine();
+        sc.nextLine();
 
         try {
             roomEntitySessionBeanRemote.createNewRoom(roomNum, roomTypeName);
@@ -396,7 +396,7 @@ public class HotelOperationModule {
                     room.setEnabled(false);
                 }
             }
-
+            
             // MERGE HERE
             roomEntitySessionBeanRemote.updateRoom(room);
             System.out.println("Room succesfully updated!");
@@ -450,58 +450,50 @@ public class HotelOperationModule {
         System.out.println("***** Create New Room Rate *****");
         System.out.print("Enter Room Rate Name: ");
         String roomRateName = sc.nextLine();
-        System.out.print("Enter Room Type Name: ");
-        String roomType = sc.nextLine();
 
         RateTypeEnum rateType = null;
 
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            Date validityStartDate = null;
-            Date validityEndDate = null;
-
-            while (rateType == null) {
-                System.out.print("Enter Rate Type (PUBLISHED/NORMAL/PEAK/PROMOTION): ");
-                String rateTypeInput = sc.nextLine();
-                switch (rateTypeInput) {
-                    case "PUBLISHED":
-                        rateType = RateTypeEnum.PUBLISHED;
-                        break;
-                    case "NORMAL":
-                        rateType = RateTypeEnum.NORMAL;
-                        break;
-                    case "PEAK":
-                        rateType = RateTypeEnum.PEAK;
-                        System.out.print("Enter Validity Start Date (DD/MM/YYYY): ");
-                        validityStartDate = dateFormat.parse(sc.nextLine());
-
-                        System.out.print("Enter Validity End Date (DD/MM/YYYY): ");
-                        validityEndDate = dateFormat.parse(sc.nextLine());
-                        break;
-                    case "PROMOTION":
-                        rateType = RateTypeEnum.PROMOTION;
-                        System.out.print("Enter Validity Start Date: ");
-                        validityStartDate = dateFormat.parse(sc.nextLine());
-
-                        System.out.print("Enter Validity End Date: ");
-                        validityEndDate = dateFormat.parse(sc.nextLine());
-                        break;
-                    default:
-                        System.out.println("Invalid Rate Type, try again!\n");
-                        break;
-                }
+        while (rateType == null) {
+            System.out.print("Enter Rate Type (PUBLISHED/NORMAL/PEAK/PROMOTION): ");
+            String rateTypeInput = sc.nextLine();
+            switch (rateTypeInput) {
+                case "PUBLISHED":
+                    rateType = RateTypeEnum.PUBLISHED;
+                    break;
+                case "NORMAL":
+                    rateType = RateTypeEnum.NORMAL;
+                    break;
+                case "PEAK":
+                    rateType = RateTypeEnum.PEAK;
+                    break;
+                case "PROMOTION":
+                    rateType = RateTypeEnum.PROMOTION;
+                    break;
+                default:
+                    System.out.println("Invalid Rate Type, try again!\n");
+                    break;
             }
+        }
 
-            System.out.print("Enter Rate Per Night: ");
-            double ratePerNight = sc.nextDouble();
-            sc.nextLine();
+        System.out.print("Enter Rate Per Night: ");
+        double ratePerNight = sc.nextDouble();
+        sc.nextLine();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy");
+        Date validityStartDate, validityEndDate;
+
+        try {
+            System.out.print("Enter Validity Start Date: ");
+            validityStartDate = dateFormat.parse(sc.nextLine());
+
+            System.out.print("Enter Validity End Date: ");
+            validityEndDate = dateFormat.parse(sc.nextLine());
 
             RoomRate roomRate = new RoomRate(roomRateName, rateType, ratePerNight, validityStartDate, validityEndDate);
-            System.out.println(roomRate);
-            roomRateEntitySessionBeanRemote.createNewRoomRate(roomRate, roomType);
+            roomRateEntitySessionBeanRemote.createNewRoomRate(roomRate);
             System.out.println("Room Rate Successfully Created!\n");
 
-        } catch (ParseException | DuplicateException | RoomTypeNotFoundException ex) {
+        } catch (ParseException | DuplicateException ex) {
             System.out.println(ex.getMessage());
         }
     }
@@ -642,12 +634,11 @@ public class HotelOperationModule {
 
     // use case 21
     private void viewAllRoomRates() {
-        System.out.printf("%34s\n","***** View All Room Rates *****");
+        System.out.println("***** View All Room Rates *****");
         try {
             List<RoomRate> roomRates = roomRateEntitySessionBeanRemote.viewAllRoomRates();
-            System.out.printf("%15s%27s%18s%21s\n", "Room Rate ID", "Name", "Rate Per Night", "Rate Type");
             for (RoomRate r : roomRates) {
-                System.out.printf("%8s%38s%20s%15s\n", r.getRoomRateId(), r.getName(), r.getRatePerNight(), r.getRateType());
+                // System.out.println("RoomRate Id: " + r.getRoomRateId() + ", Name: " + r.getName() + ", Room Status: " + r.getRoomStatus());
             }
             System.out.println();
         } catch (RoomRateNotFoundException e) {
