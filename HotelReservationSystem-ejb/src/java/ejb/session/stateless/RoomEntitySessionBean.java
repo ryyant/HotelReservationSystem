@@ -99,7 +99,6 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         Room managedRoom = em.merge(room);
 
         if (room.getReservation() != null) {
-            System.out.println(managedRoom.getReservation().getRoomType().getName());
             managedRoom.setEnabled(false);
             managedRoom.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
         } else {
