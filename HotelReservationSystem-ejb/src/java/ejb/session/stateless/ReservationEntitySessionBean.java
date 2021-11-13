@@ -100,7 +100,14 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
     public List<Reservation> retrieveReservationsByOccupantId(Long occupantId) throws ReservationNotFoundException {
 
         Occupant occupant = em.find(Occupant.class, occupantId);
+        
+        System.out.println(occupant);
 
+        occupant.getReservations().size();
+        
+        System.out.println("here");
+        System.out.println(occupant.getReservations());
+        
         List<Reservation> reservations = occupant.getReservations();
 
         System.out.println(reservations.toString());
