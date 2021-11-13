@@ -17,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -30,6 +31,7 @@ public class RoomType implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomTypeId;
     @Column(nullable = false, length = 64, unique = true)
+    @NotNull
     private String name;
     @Column
     private String description;
@@ -42,6 +44,7 @@ public class RoomType implements Serializable {
     @Column
     private List<String> amenities;
     @Column(nullable = false)
+    @NotNull
     private Boolean enabled;
 
     @OneToMany(mappedBy = "roomType")

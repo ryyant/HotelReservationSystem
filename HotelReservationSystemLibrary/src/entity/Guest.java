@@ -8,7 +8,7 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -19,8 +19,10 @@ public class Guest extends Occupant implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @NotNull
     @Column(nullable = false, length = 32, unique = true)
     private String username;
+    @NotNull
     @Column(nullable = false, length = 32)
     private String password;
 
@@ -32,8 +34,6 @@ public class Guest extends Occupant implements Serializable {
         this.username = username;
         this.password = password;
     }
-
-   
 
     @Override
     public int hashCode() {
@@ -75,5 +75,5 @@ public class Guest extends Occupant implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
 }

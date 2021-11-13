@@ -211,12 +211,23 @@ public class FrontOfficeModule {
                 Reservation reservation = reservationEntitySessionBeanRemote.reserveRoom(roomTypeId, numOfRoomsInput, occupantEntity, priceMapping, checkInDate, checkOutDate);
 
                 Date now = new Date();
+                Calendar checkInCal = Calendar.getInstance();
+                checkInCal.setTime(now);
+                checkInCal.set(Calendar.MILLISECOND, 0);
+                checkInCal.set(Calendar.SECOND, 0);
+                checkInCal.set(Calendar.MINUTE, 0);
+                checkInCal.set(Calendar.HOUR_OF_DAY, 2);
+
+                // 2AM TODAY
+                Date twoAmDateTime = checkInCal.getTime();
+
+                // CHECK DATE
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                 String nowStr = formatter.format(now);
                 String checkInDateStr = formatter.format(reservation.getCheckInDate());
                 String checkOutDateStr = formatter.format(reservation.getCheckOutDate());
 
-                if (nowStr.equals(checkInDateStr)) {
+                if (nowStr.equals(checkInDateStr) && now.after(twoAmDateTime)) {
                     reservationEntitySessionBeanRemote.allocateRoomsForReservation(reservation);
                 }
 
@@ -297,7 +308,7 @@ public class FrontOfficeModule {
             }
 
             System.out.println();
-            
+
         } catch (OccupantNotFoundException | ReservationNotFoundException ex) {
             System.out.println(ex.getMessage());
         }

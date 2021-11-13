@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -24,6 +25,7 @@ public class Report implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
     // can only be 1 or 2
+    @NotNull
     @Column(nullable = false)
     private int type;
 

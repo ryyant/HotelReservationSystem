@@ -19,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import util.enumeration.RateTypeEnum;
 
 /**
@@ -33,13 +34,17 @@ public class RoomRate implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
     @Column(nullable = false, length = 32)
+    @NotNull
     private String name;
     @Column(nullable = false)
+    @NotNull
     @Enumerated(STRING)
     private RateTypeEnum rateType;
     @Column(nullable = false)
+    @NotNull
     private Double ratePerNight;
     @Column(nullable = false)
+    @NotNull
     private Boolean enabled;
     @Column
     @Temporal(TemporalType.DATE)

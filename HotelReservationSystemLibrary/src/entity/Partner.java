@@ -14,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -26,15 +27,16 @@ public class Partner implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long partnerId;
+    @NotNull
     @Column(nullable = false, length = 264, unique = true)
     private String username;
+    @NotNull
     @Column(nullable = false, length = 264)
     private String password;
 
-    @OneToMany(mappedBy="Partner")
+    @OneToMany(mappedBy = "Partner")
     private List<Reservation> reservations;
-    
-   
+
     public Partner() {
         this.reservations = new ArrayList<>();
     }
@@ -44,9 +46,7 @@ public class Partner implements Serializable {
         this.username = username;
         this.password = password;
     }
-    
-    
-    
+
     public Long getPartnerId() {
         return partnerId;
     }
@@ -103,5 +103,5 @@ public class Partner implements Serializable {
     public void setReservations(List<Reservation> reservations) {
         this.reservations = reservations;
     }
-    
+
 }

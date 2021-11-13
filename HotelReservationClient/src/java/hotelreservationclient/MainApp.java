@@ -326,9 +326,12 @@ public class MainApp {
     // use case 6
     private void viewAllReservations() {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-
+        System.out.println(currentGuestEntity.getOccupantId());
+        Long occupantId = currentGuestEntity.getOccupantId();
         try {
-            List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(currentGuestEntity.getOccupantId());
+                    System.out.println("xxxxx");
+
+            List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(2l);
             System.out.println("-------------------------YOUR RESERVATIONS--------------------------");
             System.out.printf("%15s%15s%20s%28s\n", "ReservationId", "Check In Date", "Check Out Date", "Room Type");
             for (Reservation reservation : reservations) {
@@ -339,6 +342,7 @@ public class MainApp {
                 System.out.printf("%15s%15s%20s%28s\n", reservation.getReservationId(), checkInDate, checkOutDate, roomType.getName());
 
             }
+        System.out.println("3233");
 
         } catch (ReservationNotFoundException ex) {
             System.out.println(ex.getMessage());

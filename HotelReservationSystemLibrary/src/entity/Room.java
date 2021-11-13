@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 import util.enumeration.RoomStatusEnum;
 
 /**
@@ -30,18 +31,21 @@ public class Room implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
     @Column(nullable = false, length = 4, unique = true)
+    @NotNull
     private String roomNumber;
     @Column(nullable = false)
+    @NotNull
     @Enumerated(STRING)
     private RoomStatusEnum roomStatus;
     @Column(nullable = false)
+    @NotNull
     private Boolean enabled;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)   
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false)
     private RoomType roomType;
-    
-    @ManyToOne(fetch = FetchType.LAZY)   
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Reservation reservation;
 
     public Room() {
@@ -111,7 +115,7 @@ public class Room implements Serializable {
     public Boolean isEnabled() {
         return enabled;
     }
-    
+
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
