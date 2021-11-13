@@ -108,6 +108,10 @@ public class Room implements Serializable {
         return enabled;
     }
 
+    public Boolean isEnabled() {
+        return enabled;
+    }
+    
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
