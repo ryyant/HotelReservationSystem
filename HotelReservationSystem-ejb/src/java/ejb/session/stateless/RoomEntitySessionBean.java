@@ -172,7 +172,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
         double normalRate = 0;
         double peakRate = 0;
         double promotionRate = 0;
-
+        
         for (RoomRate r : roomRates) {
 
             if (r.getEnabled()) {
