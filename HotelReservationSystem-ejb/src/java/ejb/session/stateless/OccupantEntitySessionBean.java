@@ -25,6 +25,7 @@ public class OccupantEntitySessionBean implements OccupantEntitySessionBeanRemot
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
+    @Override
     public Occupant occupantRegister(Occupant walkInGuest) throws DuplicateException {
         try {
             em.persist(walkInGuest);
@@ -34,7 +35,8 @@ public class OccupantEntitySessionBean implements OccupantEntitySessionBeanRemot
             throw new DuplicateException("Occupant exists!");
         }
     }
-
+    
+    @Override
     public Occupant retrieveOccupantByPassport(String passportNum) throws OccupantNotFoundException {
 
         try {

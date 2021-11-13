@@ -258,7 +258,8 @@ public class MainApp {
         if (!priceMapping.isEmpty()) {
             System.out.print("Do you want to reserve a room? (Y/N) > ");
             String input = sc.nextLine().trim();
-            while (input.equalsIgnoreCase("Y")) {
+            System.out.println();
+            if (input.equalsIgnoreCase("Y")) {
                 System.out.print("Enter Id of the room that you would like to reserve! > ");
                 Long roomTypeId = sc.nextLong();
                 sc.nextLine();
@@ -275,13 +276,13 @@ public class MainApp {
                     reservationEntitySessionBeanRemote.allocateRoomsForReservation(reservation);
                 }
 
+                System.out.println();
                 System.out.println(reservation.getRoomType().getName() + " has been reserved from " + checkInDateStr + " until " + checkOutDateStr + "!\n");
-                System.out.println("Would you like to reserve another room? (Y/N) > ");
-                input = sc.nextLine().trim();
-                sc.nextLine();
+                System.out.println("Your reservation ID is " + reservation.getReservationId() + "!\n");
 
             }
         }
+        
     }
 
     // use case 5
@@ -292,18 +293,17 @@ public class MainApp {
             List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(occupantId);
             Reservation reservation = reservationEntitySessionBeanRemote.retrieveReservationByReservationId(reservationId);
 
-            for (Reservation r : reservations) {
-                if (r.equals(reservation)) {
-                    System.out.println("Here are the details for your reservation with ID: " + reservationId);
-                    System.out.printf("%15s%20s%30s%15s%20s\n", "Check In Date", "Check Out Date", "Room Type", "Cost/Rm", "Number of Rooms");
-                    String checkInDate = formatter.format(reservation.getCheckInDate());
-                    String checkOutDate = formatter.format(reservation.getCheckOutDate());
-                    RoomType roomType = reservation.getRoomType();
+            if (reservations.contains(reservation)) {
+                System.out.println("Here are the details for your reservation with ID: " + reservationId);
+                System.out.printf("%15s%20s%30s%15s%20s\n", "Check In Date", "Check Out Date", "Room Type", "Cost/Rm", "Number of Rooms");
+                String checkInDate = formatter.format(reservation.getCheckInDate());
+                String checkOutDate = formatter.format(reservation.getCheckOutDate());
+                RoomType roomType = reservation.getRoomType();
 
-                    System.out.printf("%15s%20s%30s%15s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
-                } else {
-                    System.out.println("Invalid Reservation Id! You did not make this reservation! :( \n");
-                }
+                System.out.printf("%15s%20s%30s%15s%20s\n", checkInDate, checkOutDate, roomType.getName(), reservation.getAmount(), reservation.getQuantity());
+                System.out.println();
+            } else {
+                System.out.println("Invalid Reservation Id! You did not make this reservation! :( \n");
             }
 
         } catch (ReservationNotFoundException ex) {
@@ -311,21 +311,21 @@ public class MainApp {
         }
 
     }
-    // use case 6
 
+    // use case 6
     private void viewAllReservations() {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         try {
             List<Reservation> reservations = reservationEntitySessionBeanRemote.retrieveReservationsByOccupantId(currentGuestEntity.getOccupantId());
-            System.out.println("----------------------YOUR RESERVATIONS-----------------------");
-            System.out.printf("%15s%20s%20s\n", "Check In Date", "Check Out Date", "Room Type");
+            System.out.println("-------------------------YOUR RESERVATIONS--------------------------");
+            System.out.printf("%15s%15s%20s%28s\n", "ReservationId", "Check In Date", "Check Out Date", "Room Type");
             for (Reservation reservation : reservations) {
                 String checkInDate = formatter.format(reservation.getCheckInDate());
                 String checkOutDate = formatter.format(reservation.getCheckOutDate());
 
                 RoomType roomType = reservation.getRoomType();
-                System.out.printf("%15s%20s%20s\n", checkInDate, checkOutDate, roomType.getName());
+                System.out.printf("%15s%15s%20s%28s\n", reservation.getReservationId(), checkInDate, checkOutDate, roomType.getName());
 
             }
 

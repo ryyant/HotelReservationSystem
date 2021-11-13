@@ -41,6 +41,6 @@ public interface ReservationEntitySessionBeanRemote {
 
     public void allocateCurrentDayReservations(Date futureDate);
 
-    public void checkOut(int roomNumber) throws RoomNotFoundException;
+    public void checkOut(String ppNum, String roomNumber) throws RoomNotFoundException;
 
 }

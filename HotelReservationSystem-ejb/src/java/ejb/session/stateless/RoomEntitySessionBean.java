@@ -85,7 +85,7 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
             return room;
 
         } catch (NoResultException e) {
-            throw new RoomNotFoundException("Room does not exist!");
+            throw new RoomNotFoundException("Room does not exist!\n");
         }
     }
 
@@ -155,8 +155,6 @@ public class RoomEntitySessionBean implements RoomEntitySessionBeanRemote, RoomE
                 availRoomTypes.add(rt);
             }
         }
-
-        System.out.println(availRoomTypes.toString());
 
         // exception if no rooms left for any type
         if (roomTypeToQty.isEmpty()) {

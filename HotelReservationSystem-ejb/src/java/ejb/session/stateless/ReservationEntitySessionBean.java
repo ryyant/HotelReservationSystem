@@ -48,7 +48,6 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         double amount = priceMapping.get(roomType);
         Reservation newReservation = new Reservation(amount, quantity, checkInDate, checkOutDate);
         em.persist(newReservation);
-
         newReservation.setRoomType(roomType);
         newReservation.setOccupant(occupant);
 
@@ -57,7 +56,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         return newReservation;
 
     }
-    
+
     public Reservation reserveRoom(Long roomTypeId, int quantity, Partner partner, HashMap<RoomType, Double> priceMapping, Date checkInDate, Date checkOutDate) {
 
         partner = em.merge(partner);
@@ -104,6 +103,8 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
 
         List<Reservation> reservations = occupant.getReservations();
 
+        System.out.println(reservations.toString());
+
         if (!reservations.isEmpty()) {
             for (Reservation reservation : reservations) {
                 reservation.getRoomType();
@@ -113,8 +114,8 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
             throw new ReservationNotFoundException("You do not have any reservations made!\n");
         }
     }
-    
-     @Override
+
+    @Override
     public List<Reservation> retrieveReservationsByPartnerId(Long partnerId) throws ReservationNotFoundException {
 
         Partner partner = em.find(Partner.class, partnerId);
@@ -192,10 +193,10 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
         allocations.addAll(reservation.getRooms());
 
         // check if already allocated previously for this day's reservation (same day check-in)
-        if (allocations.size() > 0) {
+        if (reservation.getRooms().size() > 0) {
             return;
         }
-        System.out.println("getting room.");
+        System.out.println("getting rooms...");
 
         // get available rooms of reservation's room type
         List<Room> requiredRooms = em.createQuery("SELECT r from Room r WHERE r.roomType = ?1 AND r.enabled = ?2 AND r.roomStatus = ?3")
@@ -204,7 +205,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
                 .setParameter(3, RoomStatusEnum.AVAILABLE)
                 .getResultList();
 
-        System.out.println(requiredQuantity);
+        System.out.println(requiredRooms);
 
         // get available rooms of reservation's higher room type
         RoomType higherRoomType = reservation.getRoomType().getNextHigherRoomType();
@@ -216,56 +217,70 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
                     .setParameter(3, RoomStatusEnum.AVAILABLE)
                     .getResultList();
         }
+        System.out.println(requiredRooms);
 
-        System.out.println(requiredQuantity);
-
-        // if enough required rooms available, allocate sequentially.
-        if (requiredRooms.size() >= requiredQuantity) {
-            // allocate required rooms 
-            for (int i = 0; i < requiredQuantity; i++) {
-                Room room = requiredRooms.get(i);
-                allocations.add(room);
-                room.setReservation(reservation);
-                room.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
-                requiredQuantity--;
+        // allocate required rooms
+        int index = 0;
+        while (requiredQuantity > 0) {
+            if (index >= requiredRooms.size()) {
+                break;
             }
+            Room room = requiredRooms.get(index);
+            allocations.add(room);
+            room.setReservation(reservation);
+            room.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
+            requiredQuantity--;
+            index++;
+
         }
 
-        // if enough higher rooms available, allocate.
-        if (higherRooms.size() >= requiredQuantity) {
-            // allocate upgrade rooms
-            for (int i = 0; i < requiredQuantity; i++) {
-                Room higherRoom = higherRooms.get(i);
-                allocations.add(higherRoom);
-                higherRoom.setReservation(reservation);
-                higherRoom.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
-                Report report = new Report(1);
-                em.persist(report);
-                reservation.getReports().add(report);
-                requiredQuantity--;
+        // allocate upgrade rooms
+        index = 0;
+        while (requiredQuantity > 0) {
+            if (index >= higherRooms.size()) {
+                break;
             }
+            Room higherRoom = higherRooms.get(index);
+            allocations.add(higherRoom);
+            higherRoom.setReservation(reservation);
+            higherRoom.setRoomStatus(RoomStatusEnum.NOT_AVAILABLE);
+            Report report = new Report(1);
+            em.persist(report);
+            reservation.getReports().add(report);
+            requiredQuantity--;
+            index++;
+
         }
 
         // if no more rooms and higher rooms, type 2 exception
-        if (requiredQuantity > 0) {
-            for (int i = 0; i < requiredQuantity; i++) {
-                Report report = new Report(2);
-                em.persist(report);
-                reservation.getReports().add(report);
-            }
+        System.out.println(requiredQuantity);
+
+        while (requiredQuantity > 0) {
+            Report report = new Report(2);
+            em.persist(report);
+            reservation.getReports().add(report);
+            requiredQuantity--;
         }
+        System.out.println(requiredQuantity);
 
         // set allocations to reservation
         reservation.setRooms(allocations);
-
     }
 
     @Override
-    public void checkOut(int roomNumber) throws RoomNotFoundException {
+    public void checkOut(String ppNum, String roomNumber) throws RoomNotFoundException {
         try {
             Room room = (Room) em.createQuery("SELECT r FROM Room r WHERE r.roomNumber = ?1")
                     .setParameter(1, roomNumber)
                     .getSingleResult();
+
+            Occupant occupant = (Occupant) em.createQuery("SELECT r FROM Occupant r WHERE r.passportNumber = ?1")
+                    .setParameter(1, ppNum)
+                    .getSingleResult();
+
+            if (!occupant.getReservations().contains(room.getReservation())) {
+                throw new RoomNotFoundException("Room does not belong to occupant!");
+            }
 
             room.setRoomStatus(RoomStatusEnum.AVAILABLE);
             Reservation reservation = room.getReservation();
@@ -295,7 +310,7 @@ public class ReservationEntitySessionBean implements ReservationEntitySessionBea
             }
 
         } catch (NoResultException ex) {
-            throw new RoomNotFoundException("This room does not exist!\n");
+            throw new RoomNotFoundException("This room / occupant does not exist!\n");
         }
     }
 

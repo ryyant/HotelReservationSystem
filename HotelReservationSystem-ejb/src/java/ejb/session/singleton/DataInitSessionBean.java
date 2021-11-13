@@ -43,25 +43,22 @@ public class DataInitSessionBean {
         if (em.find(RoomType.class, 1l) == null) {
 
             // LOAD ROOM TYPES
-            RoomType grandSuiteType = new RoomType("Grand Suite");
-            grandSuiteType.setNextHigherRoomType(null);
-            em.persist(grandSuiteType);
-
-            RoomType juniorSuiteType = new RoomType("Junior Suite");
-            juniorSuiteType.setNextHigherRoomType(grandSuiteType);
-            em.persist(juniorSuiteType);
-
-            RoomType familyRoomType = new RoomType("Family Room");
-            familyRoomType.setNextHigherRoomType(juniorSuiteType);
-            em.persist(familyRoomType);
-
-            RoomType premierRoomType = new RoomType("Premier Room");
-            premierRoomType.setNextHigherRoomType(familyRoomType);
-            em.persist(premierRoomType);
-
             RoomType deluxeRoomType = new RoomType("Deluxe Room");
+            RoomType premierRoomType = new RoomType("Premier Room");
+            RoomType familyRoomType = new RoomType("Family Room");
+            RoomType juniorSuiteType = new RoomType("Junior Suite");
+            RoomType grandSuiteType = new RoomType("Grand Suite");
             deluxeRoomType.setNextHigherRoomType(premierRoomType);
+            premierRoomType.setNextHigherRoomType(familyRoomType);
+            familyRoomType.setNextHigherRoomType(juniorSuiteType);
+            juniorSuiteType.setNextHigherRoomType(grandSuiteType);
+            grandSuiteType.setNextHigherRoomType(null);
+
             em.persist(deluxeRoomType);
+            em.persist(premierRoomType);
+            em.persist(familyRoomType);
+            em.persist(juniorSuiteType);
+            em.persist(grandSuiteType);
 
             RoomRate roomRate = null;
 

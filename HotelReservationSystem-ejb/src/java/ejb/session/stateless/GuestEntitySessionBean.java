@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Guest;
+import entity.Occupant;
 import entity.Reservation;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -60,8 +61,4 @@ public class GuestEntitySessionBean implements GuestEntitySessionBeanRemote, Gue
         }
     }
     
-    
-    
-    
-
 }

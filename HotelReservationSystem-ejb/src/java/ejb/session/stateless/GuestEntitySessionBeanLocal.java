@@ -20,5 +20,5 @@ public interface GuestEntitySessionBeanLocal {
     public Guest guestLogin(String username, String password) throws GuestNotFoundException;
 
     public Guest guestRegister(String usernameInput, String passwordInput, String nameInput, String emailInput, String phoneNumberInput, String passportNumberInput) throws DuplicateException;
-    
+
 }

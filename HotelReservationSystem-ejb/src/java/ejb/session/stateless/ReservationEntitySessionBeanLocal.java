@@ -39,8 +39,8 @@ public interface ReservationEntitySessionBeanLocal {
 
     public void allocateCurrentDayReservations(Date futureDate);
 
-    public void checkOut(int roomNumber) throws RoomNotFoundException;
-
     public List<Reservation> retrieveReservationsByPartnerId(Long partnerId) throws ReservationNotFoundException;
+
+    public void checkOut(String ppNum, String roomNumber) throws RoomNotFoundException;
 
 }
